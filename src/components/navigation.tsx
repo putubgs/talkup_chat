@@ -13,8 +13,8 @@ interface NavigationProps {
 
 const Navigation: React.FC<NavigationProps> = ({ children }) => {
   return (
-    <section>
-      <div className="bg-[#F6FAFF] w-72 h-screen flex flex-col">
+    <section className="flex flex-row ">
+      <div className="bg-[#F6FAFF] w-[350px] h-screen flex flex-col fixed overflow-auto z-10">
         <div className="flex p-8 pt-[70px]">
           <Image src="/logo.webp" alt="logo" width={40} height={40} />
           <h5 className="font-extrabold text-[25px] ml-2">TalkUp.</h5>
@@ -48,7 +48,9 @@ const Navigation: React.FC<NavigationProps> = ({ children }) => {
           </div>
         </div>
       </div>
-      {children}
+      <div className="pl-[350px] overflow-auto">
+        {children}
+      </div>
     </section>
   );
 };
