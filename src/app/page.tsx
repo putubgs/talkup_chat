@@ -6,11 +6,13 @@ import SearchIcon from "@/components/icons/SearchIcon";
 import ArrowIcon from "@/components/icons/ArrowIcon";
 import CircleIcon from "@/components/icons/CircleIcon";
 import StoryCard from "@/components/StoryCard";
+import CategorySection from "@/components/CategorySection";
 import { cardData } from "@/dummy/stories";
 
 const Home: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement | null>(null);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     const currentRef = cardRef.current;
@@ -36,6 +38,10 @@ const Home: React.FC = () => {
     setActiveIndex(index);
   };
 
+  const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchQuery(event.target.value);
+  };
+
   return (
     <Navigation>
       <section className="flex flex-col min-w-0">
@@ -54,6 +60,7 @@ const Home: React.FC = () => {
             <input
               className="bg-[#F4F4F4] rounded-md w-[600px] pl-5 pr-8 text-xs h-full"
               placeholder="Search"
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
             <div className="space-x-6">
               <div className="absolute right-20 top-1/2 transform -translate-y-1/2">
@@ -103,156 +110,18 @@ const Home: React.FC = () => {
               ))}
             </div>
           </div>
-
-          <div className="flex flex-col relative min-w-0 pt-12">
-            <div className="flex items-center pb-6 justify-between">
-              <div>
-                <p className="text-2xl font-bold">Social Connection</p>
-              </div>
-              <div className="flex items-center space-x-2 bg-[#0D90FF] p-2 pl-3 pr-3 rounded-lg"> 
-                <button className="text-white text-[14px]">See More</button>
-                <ArrowIcon width={22} height={8} color={"white"} />
-              </div>
-            </div>
-
-            <div className="flex space-x-12 hide-scrollbar scrollbar-hide overflow-y-hidden overflow-x-scroll min-w-0">
-              {cardData
-                .filter((card) => card.category === "Social Connection")
-                .map((card) => (
-                  <StoryCard
-                    key={card.id}
-                    id={card.id}
-                    story={card.story}
-                    category={card.category}
-                  />
-                ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col relative min-w-0 pt-12">
-            <div className="flex items-center pb-6 justify-between">
-              <div>
-                <p className="text-2xl font-bold">Personal Growth</p>
-              </div>
-              <div className="flex items-center space-x-2 bg-[#0D90FF] p-2 pl-3 pr-3 rounded-lg">
-                <button className="text-white text-[14px]">See More</button>
-                <ArrowIcon width={22} height={8} color={"white"} />
-              </div>
-            </div>
-
-            <div className="flex space-x-12 hide-scrollbar scrollbar-hide overflow-y-hidden overflow-x-scroll min-w-0">
-              {cardData
-                .filter((card) => card.category === "Personal Growth")
-                .map((card) => (
-                  <StoryCard
-                    key={card.id}
-                    id={card.id}
-                    story={card.story}
-                    category={card.category}
-                  />
-                ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col relative min-w-0 pt-12">
-            <div className="flex items-center pb-6 justify-between">
-              <div>
-                <p className="text-2xl font-bold">Family</p>
-              </div>
-              <div className="flex items-center space-x-2 bg-[#0D90FF] p-2 pl-3 pr-3 rounded-lg">
-                <button className="text-white text-[14px]">See More</button>
-                <ArrowIcon width={22} height={8} color={"white"} />
-              </div>
-            </div>
-
-            <div className="flex space-x-12 hide-scrollbar scrollbar-hide overflow-y-hidden overflow-x-scroll min-w-0">
-              {cardData
-                .filter((card) => card.category === "Family")
-                .map((card) => (
-                  <StoryCard
-                    key={card.id}
-                    id={card.id}
-                    story={card.story}
-                    category={card.category}
-                  />
-                ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col relative min-w-0 pt-12">
-            <div className="flex items-center pb-6 justify-between">
-              <div>
-                <p className="text-2xl font-bold">Health</p>
-              </div>
-              <div className="flex items-center space-x-2 bg-[#0D90FF] p-2 pl-3 pr-3 rounded-lg">
-                <button className="text-white text-[14px]">See More</button>
-                <ArrowIcon width={22} height={8} color={"white"} />
-              </div>
-            </div>
-
-            <div className="flex space-x-12 hide-scrollbar scrollbar-hide overflow-y-hidden overflow-x-scroll min-w-0">
-              {cardData
-                .filter((card) => card.category === "Health")
-                .map((card) => (
-                  <StoryCard
-                    key={card.id}
-                    id={card.id}
-                    story={card.story}
-                    category={card.category}
-                  />
-                ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col relative min-w-0 pt-12">
-            <div className="flex items-center pb-6 justify-between">
-              <div>
-                <p className="text-2xl font-bold">Spirituality</p>
-              </div>
-              <div className="flex items-center space-x-2 bg-[#0D90FF] p-2 pl-3 pr-3 rounded-lg">
-                <button className="text-white text-[14px]">See More</button>
-                <ArrowIcon width={22} height={8} color={"white"} />
-              </div>
-            </div>
-
-            <div className="flex space-x-12 hide-scrollbar scrollbar-hide overflow-y-hidden overflow-x-scroll min-w-0">
-              {cardData
-                .filter((card) => card.category === "Spirituality")
-                .map((card) => (
-                  <StoryCard
-                    key={card.id}
-                    id={card.id}
-                    story={card.story}
-                    category={card.category}
-                  />
-                ))}
-            </div>
-          </div>
-
-          <div className="flex flex-col relative min-w-0 pt-12">
-            <div className="flex items-center pb-6 justify-between">
-              <div>
-                <p className="text-2xl font-bold">Finance</p>
-              </div>
-              <div className="flex items-center space-x-2 bg-[#0D90FF] p-2 pl-3 pr-3 rounded-lg">
-                <button className="text-white text-[14px]">See More</button>
-                <ArrowIcon width={22} height={8} color={"white"} />
-              </div>
-            </div>
-
-            <div className="flex space-x-12 hide-scrollbar scrollbar-hide overflow-y-hidden overflow-x-scroll min-w-0">
-              {cardData
-                .filter((card) => card.category === "Finance")
-                .map((card) => (
-                  <StoryCard
-                    key={card.id}
-                    id={card.id}
-                    story={card.story}
-                    category={card.category}
-                  />
-                ))}
-            </div>
-          </div>
+          <CategorySection
+            category="Social Connection"
+            searchQuery={searchQuery}
+          />
+          <CategorySection
+            category="Personal Growth"
+            searchQuery={searchQuery}
+          />
+          <CategorySection category="Family" searchQuery={searchQuery} />
+          <CategorySection category="Health" searchQuery={searchQuery} />
+          <CategorySection category="Spirituality" searchQuery={searchQuery} />
+          <CategorySection category="Finance" searchQuery={searchQuery} />
         </div>
       </section>
     </Navigation>
