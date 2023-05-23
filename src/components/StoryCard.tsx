@@ -23,7 +23,7 @@ const StoryCard: FC<StoryCardProps> = ({ id, story, category }) => {
   const textColor = category === "Spirituality" ? "black" : "white";
   
   // Change circle icons color to #1C1C1C only for "Finance" category
-  const circleColor = category === "Finance" ? "rgba(28,28,28,0.2)" : "rgba(0,0,0,0.2)";
+  const circleColor = category === "Finance" ? "rgba(28,28,28,0.2)" : "rgba(59,130,246,0.2)";
 
   return (
     <div
