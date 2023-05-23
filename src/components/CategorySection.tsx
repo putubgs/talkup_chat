@@ -35,6 +35,7 @@ const CategorySection: React.FC<{ category: string, searchQuery: string }> = ({ 
               id={card.id}
               story={card.story}
               category={card.category}
+              searchQuery={searchQuery}
             />
           ))}
         </div>
