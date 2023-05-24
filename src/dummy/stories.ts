@@ -179,4 +179,28 @@ export const cardData = [
           "I'm very stressful with the debt that i had, i feel like want to kill myself",
         category: "Finance",
       },
+      {
+        id: 31,
+        story:
+          "I feel like i become anti social, it's hard for me to make friends",
+        category: "Social Connection",
+      },
+      {
+        id: 32,
+        story:
+          "I'm feel depressed, its hard for me to get outside and talk to people",
+        category: "Social Connection",
+      },
+      {
+        id: 33,
+        story:
+          "I'm lonely, i don't have someone i could talk to",
+        category: "Social Connection",
+      },
+      {
+        id: 34,
+        story:
+          "I feel like i'm a failure, i see may friends success and live a happy life",
+        category: "Social Connection",
+      },
 ]
