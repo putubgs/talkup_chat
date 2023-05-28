@@ -26,13 +26,11 @@ const Home: React.FC = () => {
 
     if (currentRef) {
       currentRef.addEventListener("scroll", handleScroll);
-
-      // return a cleanup function to remove the event listener
       return () => {
         currentRef.removeEventListener("scroll", handleScroll);
       };
     }
-  }, []); // empty dependency array because useEffect runs only once after initial render
+  }, []);
 
   const handleClickIndicator = (index: number) => {
     setActiveIndex(index);
@@ -74,7 +72,7 @@ const Home: React.FC = () => {
 
           <div
             ref={cardRef as React.RefObject<HTMLDivElement>}
-            className="flex space-x-12 hide-scrollbar scrollbar-hide overflow-x-scroll min-w-0"
+            className="flex space-x-12 hide-scrollbar min-w-0"
           >
             {cardData.slice(0, 6).map((card, index) => (
               <div

@@ -38,3 +38,7 @@ body {
 .hide-scrollbar::-webkit-scrollbar {
   width: 0px; /* For WebKit browsers */
 }
+
+.yourShadowClass {
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.1);
+}
