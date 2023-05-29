@@ -59,4 +59,10 @@ export const FeedbackData = [
     feedback: "Nice job!",
     rating: 5,
   },
+  {
+    name: "John Smith",
+    date: "2023-06-02",
+    feedback: "Bad job!",
+    rating: 3,
+  },
 ];

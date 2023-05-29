@@ -15,7 +15,7 @@ const ProfilePage: React.FC = () => {
   const averageRating = (totalRating / FeedbackData.length).toFixed(1);
   return (
     <section className="flex flex-col min-w-0">
-      <div className="flex h-[150px] bg-[#FFFFFF] p-7 justify-between min-w-0 items-center">
+      <div className="flex h-[150px] p-7 justify-between min-w-0 items-center">
         <div className="flex pl-12 items-center justify-between">
           <CircleIcon size={100} color={"#EEEEEE"} />
           <div className="flex flex-col pl-4">
