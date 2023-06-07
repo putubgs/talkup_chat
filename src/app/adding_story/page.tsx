@@ -1,5 +1,6 @@
 "use client";
 import React, { useState, useEffect } from "react";
+import { forbiddenWords } from "@/dummy/forbiddenWords";
 
 type ListItem = { date: string; time: string };
 
@@ -24,7 +25,38 @@ const AddStoryPage: React.FC = () => {
   const [storyValue, setStoryValue] = useState("");
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setStoryValue(event.target.value);
+    const inputValue = event.target.value;
+
+    // List of forbidden words
+
+    // Check if the input value contains any forbidden words
+    const containsForbiddenWord = forbiddenWords.some((word) =>
+      inputValue.toLowerCase().includes(word.toLowerCase())
+    );
+
+    // Split the input value by spaces
+    const words = inputValue.split(" ");
+
+    // Replace forbidden words with asterisks after space
+    const sanitizedWords = words.map((word) => {
+      const sanitizedWord = forbiddenWords.find(
+        (forbiddenWord) => forbiddenWord.toLowerCase() === word.toLowerCase()
+      );
+      return sanitizedWord ? "*".repeat(word.length) : word;
+    });
+
+    // Join the sanitized words back together with spaces
+    const sanitizedValue = sanitizedWords.join(" ");
+
+    // Check if the last character typed was a space
+    const lastCharacterIsSpace = inputValue.endsWith(" ");
+
+    // Update the state only if the last character is a space
+    if (lastCharacterIsSpace) {
+      setStoryValue(sanitizedValue);
+    } else {
+      setStoryValue(inputValue);
+    }
   };
 
   const today = new Date();
@@ -85,22 +117,32 @@ const AddStoryPage: React.FC = () => {
   };
 
   const handleUpload = () => {
+    // Check if the storyValue contains any forbidden words
+    const containsForbiddenWord = forbiddenWords.some((word) =>
+      storyValue.toLowerCase().includes(word.toLowerCase())
+    );
+
+    if (containsForbiddenWord) {
+      // Show a warning pop-up or perform any other action
+      alert("Warning: Inappropriate language detected!");
+      return;
+    }
+
     const convertedSchedules = list.map((item) => ({
-        date: item.date,
-        time: convertTo12Hour(item.time)
-      }));
-    
-      const storyData = {
-        storyType: isDirect ? "Direct" : "Scheduled",
-        schedules: convertedSchedules,
-        story: storyValue
-      };
+      date: item.date,
+      time: convertTo12Hour(item.time),
+    }));
+
+    const storyData = {
+      storyType: isDirect ? "Direct" : "Scheduled",
+      schedules: convertedSchedules,
+      story: storyValue,
+    };
 
     handleReset();
-  
+
     console.log(storyData);
   };
-  
 
   return (
     <section className="flex flex-col min-w-0 p-12">
@@ -188,11 +230,17 @@ const AddStoryPage: React.FC = () => {
         </div>
       </div>
       <div className="flex space-x-6 justify-end pt-8">
-        <button onClick={handleReset} className="border border-[#0D90FF] p-4 pl-10 pr-10 rounded-lg text-[#0D90FF]">
-            Reset
+        <button
+          onClick={handleReset}
+          className="border border-[#0D90FF] p-4 pl-10 pr-10 rounded-lg text-[#0D90FF]"
+        >
+          Reset
         </button>
-        <button   onClick={handleUpload} className="bg-[#0D90FF] p-4 pl-10 pr-10 rounded-lg text-white">
-            Upload Story
+        <button
+          onClick={handleUpload}
+          className="bg-[#0D90FF] p-4 pl-10 pr-10 rounded-lg text-white"
+        >
+          Upload Story
         </button>
       </div>
     </section>

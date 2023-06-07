@@ -66,10 +66,10 @@ export default function RootLayout({
                 />
                 <p className="text-[20px] ml-3">Profile</p>
               </div>
-              <div className="flex w-full p-3 rounded-xl text-[#85878A] items-center cursor-pointer">
+              {/* <div className="flex w-full p-3 rounded-xl text-[#85878A] items-center cursor-pointer">
                 <SettingsIcon size={12} color={"#85878A"} />
                 <p className="text-[20px] ml-3">Setting</p>
-              </div>
+              </div> */}
               <div
                 className={`flex w-full p-3 rounded-xl items-center cursor-pointer ${
                   isAddingStoryPage
