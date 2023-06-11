@@ -1,12 +1,19 @@
 {
-    "builds": [{
-        "src": "app/nlp/storyNLP.py",
-        "use": "@vercel/python"
-    }],
+    "builds": [
+        {
+            "src": "/api/predict.js",
+            "use": "@vercel/node"
+        },
+        {
+            "src": "/src/app/nlp/storyNLP.py",
+            "use": "@vercel/python",
+            "config": { "maxLambdaSize": "50mb" }
+        }
+    ],
     "routes": [
         {
-            "src": "/(.*)",
-            "dest": "app/nlp/storyNLP.py"
+            "src": "/api/predict",
+            "dest": "/api/predict.js"
         }
     ]
 }
