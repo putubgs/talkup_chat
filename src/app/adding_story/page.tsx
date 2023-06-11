@@ -17,6 +17,10 @@ function convertTo12Hour(timeStr: string): string {
 }
 
 const AddStoryPage: React.FC = () => {
+  const [serverResult, setServerResult] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [storyLabel, setStoryLabel] = useState(false);
   const [list, setList] = useState<ListItem[]>([]);
   const [inputDate, setInputDate] = useState("");
   const [inputTime, setInputTime] = useState("");
@@ -95,59 +99,96 @@ const AddStoryPage: React.FC = () => {
   };
 
   const handleUpload = async () => {
-    const response = await fetch("/api/pythonAPI", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ story: storyValue }),
-    });
-    console.log('api run')
-    const data = await response.json();
-
-    // if (data.result) {
-    //   console.log("Predicted category:", data.result);
-    //   // You can also update the state, show messages, etc.
-    // } else {
-    //   console.error("Error predicting the category:", data.error);
-    // }
-
-    // Check if the storyValue contains any forbidden words
-    const containsForbiddenWord = forbiddenWords.some((word) =>
-      storyValue.toLowerCase().includes(word.toLowerCase())
-    );
-
-    if (containsForbiddenWord) {
-      // Show a warning pop-up or perform any other action
-      alert("Warning: Inappropriate language detected!");
+    if (storyValue.length < 21) {
+      alert("Your story must be more than 20 characters!");
       return;
     }
 
-    // Check if the storyValue contains more than one asterisk
     const asteriskCount = storyValue.split("*").length - 1;
     if (asteriskCount > 1) {
       // Show a warning pop-up or perform any other action
       alert("Warning: Your story contained bad words, please be nice!");
+      handleReset();
       return;
+    } else {
+      setShowModal(true);
+      setLoading(true);
+      const response = await fetch("/api/pythonAPI", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ story: storyValue }),
+      });
+      console.log("api run");
+      const data = await response.json();
+
+      const convertedSchedules = list.map((item) => ({
+        date: item.date,
+        time: convertTo12Hour(item.time),
+      }));
+
+      if (data.result != "Others") {
+        setStoryLabel(true);
+        const storyData = {
+          storyType: isDirect ? "Direct" : "Scheduled",
+          schedules: convertedSchedules,
+          story: storyValue,
+          category: data.result,
+        };
+
+        handleReset();
+
+        console.log(storyData);
+        setServerResult(data.result);
+      } else {
+        setStoryLabel(false);
+        handleReset();
+      }
+
+      setLoading(false);
     }
-
-    const convertedSchedules = list.map((item) => ({
-      date: item.date,
-      time: convertTo12Hour(item.time),
-    }));
-
-    const storyData = {
-      storyType: isDirect ? "Direct" : "Scheduled",
-      schedules: convertedSchedules,
-      story: storyValue,
-      category: data.result
-    };
-
-    handleReset();
-
-    console.log(storyData);
   };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setServerResult(null);
+  };
+
+  const renderLoadingModal = () => (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-white p-8 rounded-lg shadow-lg flex flex-col items-center">
+        {loading ? (
+          <>
+            <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64 mb-4"></div>
+            <h2 className="text-center text-gray-600">
+              The AI is Reading, please wait!
+            </h2>
+          </>
+        ) : (
+          <>
+            {storyLabel ? (
+              <p className="text-center text-gray-600 text-xl mb-6 font-bold">
+                Result: {serverResult}
+              </p>
+            ) : (
+              <p className="text-center text-gray-600 text-xl mb-6 font-bold">
+                Please specify the problem!
+              </p>
+            )}
+            <button
+              className="bg-[#0D90FF] p-2 pl-12 pr-12 rounded-xl text-white"
+              onClick={handleCloseModal}
+            >
+              OK!
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  );
 
   return (
     <section className="flex flex-col min-w-0 p-12">
+      {showModal && renderLoadingModal()}
       <div className="w-full bg-[#F6FAFF] rounded-lg p-6 flex flex-col space-y-10">
         <div className="font-bold text-[#16A6B7] text-xl">Write Your Story</div>
         <div className="mt-4">
@@ -224,8 +265,17 @@ const AddStoryPage: React.FC = () => {
             onChange={handleInputChange}
           />
           <div
-            style={{ color: storyValue.length >= 100 ? "red" : "black" }}
             className="pt-2"
+            style={{
+              color:
+                storyValue.length === 0
+                  ? "black"
+                  : storyValue.length <= 20
+                  ? "red"
+                  : storyValue.length < 100
+                  ? "green"
+                  : "red",
+            }}
           >
             {storyValue.length} / 100 Characters
           </div>
