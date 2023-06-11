@@ -27,36 +27,14 @@ const AddStoryPage: React.FC = () => {
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
 
-    // List of forbidden words
-
-    // Check if the input value contains any forbidden words
-    const containsForbiddenWord = forbiddenWords.some((word) =>
-      inputValue.toLowerCase().includes(word.toLowerCase())
-    );
-
-    // Split the input value by spaces
-    const words = inputValue.split(" ");
-
-    // Replace forbidden words with asterisks after space
-    const sanitizedWords = words.map((word) => {
-      const sanitizedWord = forbiddenWords.find(
-        (forbiddenWord) => forbiddenWord.toLowerCase() === word.toLowerCase()
-      );
-      return sanitizedWord ? "*".repeat(word.length) : word;
+    let sanitizedValue = inputValue;
+    forbiddenWords.forEach((word) => {
+      const escapedWord = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      const regex = new RegExp(`\\b${escapedWord}\\b`, "gi");
+      sanitizedValue = sanitizedValue.replace(regex, "*".repeat(word.length));
     });
 
-    // Join the sanitized words back together with spaces
-    const sanitizedValue = sanitizedWords.join(" ");
-
-    // Check if the last character typed was a space
-    const lastCharacterIsSpace = inputValue.endsWith(" ");
-
-    // Update the state only if the last character is a space
-    if (lastCharacterIsSpace) {
-      setStoryValue(sanitizedValue);
-    } else {
-      setStoryValue(inputValue);
-    }
+    setStoryValue(sanitizedValue);
   };
 
   const today = new Date();
@@ -116,7 +94,22 @@ const AddStoryPage: React.FC = () => {
     setStoryValue("");
   };
 
-  const handleUpload = () => {
+  const handleUpload = async () => {
+    const response = await fetch("/api/pythonAPI", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ story: storyValue }),
+    });
+    console.log('api run')
+    const data = await response.json();
+
+    // if (data.result) {
+    //   console.log("Predicted category:", data.result);
+    //   // You can also update the state, show messages, etc.
+    // } else {
+    //   console.error("Error predicting the category:", data.error);
+    // }
+
     // Check if the storyValue contains any forbidden words
     const containsForbiddenWord = forbiddenWords.some((word) =>
       storyValue.toLowerCase().includes(word.toLowerCase())
@@ -125,6 +118,14 @@ const AddStoryPage: React.FC = () => {
     if (containsForbiddenWord) {
       // Show a warning pop-up or perform any other action
       alert("Warning: Inappropriate language detected!");
+      return;
+    }
+
+    // Check if the storyValue contains more than one asterisk
+    const asteriskCount = storyValue.split("*").length - 1;
+    if (asteriskCount > 1) {
+      // Show a warning pop-up or perform any other action
+      alert("Warning: Your story contained bad words, please be nice!");
       return;
     }
 
@@ -137,6 +138,7 @@ const AddStoryPage: React.FC = () => {
       storyType: isDirect ? "Direct" : "Scheduled",
       schedules: convertedSchedules,
       story: storyValue,
+      category: data.result
     };
 
     handleReset();
