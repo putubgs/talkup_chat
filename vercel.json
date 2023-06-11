@@ -1,0 +1,12 @@
+{
+    "builds": [{
+        "src": "app/nlp/storyNLP.py",
+        "use": "@vercel/python"
+    }],
+    "routes": [
+        {
+            "src": "/(.*)",
+            "dest": "app/nlp/storyNLP.py"
+        }
+    ]
+}
