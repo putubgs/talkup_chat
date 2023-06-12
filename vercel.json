@@ -5,7 +5,7 @@
             "use": "@vercel/node"
         },
         {
-            "src": "/src/app/nlp/storyNLP.py",
+            "src": "/app/nlp/storyNLP.py",
             "use": "@vercel/python",
             "config": { "maxLambdaSize": "50mb" }
         }
