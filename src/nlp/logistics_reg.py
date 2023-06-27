@@ -1,10 +1,8 @@
-# SVM classifier with TDF-IDF
 import os
 import sys
-import numpy as np
 import pandas as pd
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.svm import SVC
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 
@@ -52,11 +50,11 @@ X = vectorizer.fit_transform(X)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Using the SVM classifier
-svm_model = SVC()
-svm_model.fit(X_train, y_train)
+# Using the Logistic Regression classifier
+lr_model = LogisticRegression()
+lr_model.fit(X_train, y_train)
 
-y_pred = svm_model.predict(X_test)
+y_pred = lr_model.predict(X_test)
 # print(classification_report(y_test, y_pred))
 
 # Classify an inputted story
@@ -65,5 +63,5 @@ input_story = sys.argv[1]
 input_story = preprocess_text(input_story)
 input_story = vectorizer.transform([input_story])
 
-predicted_category = svm_model.predict(input_story)[0]
+predicted_category = lr_model.predict(input_story)[0]
 print(predicted_category, end="")

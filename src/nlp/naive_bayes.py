@@ -1,10 +1,9 @@
-# SVM classifier with TDF-IDF
 import os
 import sys
 import numpy as np
 import pandas as pd
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.svm import SVC
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.metrics import classification_report
 from sklearn.model_selection import train_test_split
 
@@ -47,16 +46,15 @@ def preprocess_text(text):
 
 X = X.apply(preprocess_text)
 
-vectorizer = TfidfVectorizer()  # You can customize this further if needed
+vectorizer = CountVectorizer()  # You can customize this further if needed
 X = vectorizer.fit_transform(X)
 
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-# Using the SVM classifier
-svm_model = SVC()
-svm_model.fit(X_train, y_train)
+nb_model = MultinomialNB()
+nb_model.fit(X_train, y_train)
 
-y_pred = svm_model.predict(X_test)
+y_pred = nb_model.predict(X_test)
 # print(classification_report(y_test, y_pred))
 
 # Classify an inputted story
@@ -65,5 +63,5 @@ input_story = sys.argv[1]
 input_story = preprocess_text(input_story)
 input_story = vectorizer.transform([input_story])
 
-predicted_category = svm_model.predict(input_story)[0]
+predicted_category = nb_model.predict(input_story)[0]
 print(predicted_category, end="")
