@@ -4,6 +4,7 @@ import WhiteLogo from "@/components/icons/whiteLogo";
 import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { Toast } from "@/components/Toast";
+import axios from "axios";
 
 const Register: React.FC = () => {
   const defaultValue = "Anonymous#";
@@ -50,6 +51,18 @@ const Register: React.FC = () => {
       email,
       password: hashedPassword,
     });
+
+    const userData = {
+      username,
+      email,
+      password: hashedPassword,
+    };
+
+    try {
+      await axios.post("http://localhost:3000/api/auth/register", userData);
+    } catch (error) {
+      console.error(error);
+    }
 
     setToastMessage('Data submitted successfully!');
     setToastVisible(true);
