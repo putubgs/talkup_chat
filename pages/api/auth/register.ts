@@ -17,6 +17,19 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const { username, email, password } = req.body;
 
     try {
+      const existingUser = await User.findOne({ username });
+      if (existingUser) {
+        return res
+          .status(409)
+          .json({ error: "Username already exists", field: "username" });
+      }
+
+      const existingEmail = await User.findOne({ email });
+      if (existingEmail) {
+        return res
+          .status(409)
+          .json({ error: "Email already exists", field: "email" });
+      }
       const userDoc = await User.create({ username, email, password });
 
       const user = {
@@ -32,7 +45,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       });
     } catch (error) {
       const mongoError = error as MongooseError;
-      
+
       if (mongoError instanceof mongoose.Error.ValidationError) {
         // Extracting the first error message from the validation error
         const firstErrorKey = Object.keys(mongoError.errors)[0];

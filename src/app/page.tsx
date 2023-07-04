@@ -9,6 +9,7 @@ import StoryCard from "@/components/StoryCard";
 import CategorySection from "@/components/CategorySection";
 import { cardData } from "@/dummy/stories";
 
+
 const Home: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement | null>(null);

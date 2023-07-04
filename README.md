@@ -2,20 +2,30 @@ This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next
 
 ## Getting Started
 
-First, run the development server:
-
+Install the web app dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
+npm install
 ```
 
+Create virtual environment for Python
+```bash
+python -m venv <your-environment-name>
+```
+
+Ictivate the virtual enviroment
+```bash
+source <your-environment-name>/bin/activate
+```
+
+Install the NLP requirements
 ```bash
 pip install -r requirements.txt
 ```
 
+Run the development server
+```bash
+npm run dev
+```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 

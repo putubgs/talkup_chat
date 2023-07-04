@@ -46,12 +46,6 @@ const Register: React.FC = () => {
 
     const hashedPassword = await hashPassword(password);
 
-    console.log({
-      username,
-      email,
-      password: hashedPassword,
-    });
-
     const userData = {
       username,
       email,
@@ -60,16 +54,28 @@ const Register: React.FC = () => {
 
     try {
       await axios.post("http://localhost:3000/api/auth/register", userData);
+      setToastMessage('Data submitted successfully!');
+      setToastVisible(true);
+    
+      setUsername("Anonymous#");
+      setEmail("");
+      setPassword("");
+      setUsernameInputClass("border-2 border-[#656ED3] h-12 rounded-full p-4");
+      setEmailInputClass("border-2 border-[#656ED3] h-12 rounded-full p-4");
+      setPasswordInputClass("border-2 border-[#656ED3] h-12 rounded-full p-4");
     } catch (error) {
-      console.error(error);
+      if (axios.isAxiosError(error) && error.response) {
+        if(error.response.data.field === "username"){
+          setUsernameInputClass("border-2 border-red-500 h-12 rounded-full p-4");
+        }else if(error.response.data.field === "email"){
+          setEmailInputClass("border-2 border-red-500 h-12 rounded-full p-4");
+        }
+        setToastMessage(error.response.data.error);
+        console.log(error.response.data.error);
+        setToastVisible(true);
+      }
     }
-
-    setToastMessage('Data submitted successfully!');
-    setToastVisible(true);
-
-    setUsername("Anonymous#");
-    setEmail("");
-    setPassword("");
+    
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -175,7 +181,6 @@ const Register: React.FC = () => {
             className={`${usernameInputClass} focus:outline-none`}
             value={username}
             onChange={handleInputChange}
-            placeholder="12345"
           />
           <div className="text-xl">Email:</div>
           <input
