@@ -12,6 +12,7 @@ const Login: React.FC = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [errorStatus, setError] = useState(false);
   const { data: session, status: loading } = useSession();
   const [buttonClass, setButtonClass] = useState(
     "bg-gray-400 text-gray-600 font-bold p-3 rounded-full w-full"
@@ -38,6 +39,7 @@ const Login: React.FC = () => {
       onError: (error: any) => {
         setToastMessage(error.message);
         setToastVisible(true);
+        setError(true);
       },
     });
   };
@@ -62,7 +64,8 @@ const Login: React.FC = () => {
   }, [session]);
   return (
     <section className="flex justify-between">
-      <Toast message={toastMessage} visible={toastVisible} />
+      <Toast message={toastMessage} visible={toastVisible} error={errorStatus} />
+
       <div className="bg-white flex flex-col items-center justify-center h-screen flex-grow space-y-12">
         <div className="text-xl font-bold">Let&apos;s Create Account!</div>
         <form
