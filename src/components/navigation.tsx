@@ -119,7 +119,7 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
           <div className="p-8 cursor-pointer">
             <div
               className="flex bg-[#DFEFFF] w-full p-3 rounded-xl text-[#0D90FF] items-center"
-              onClick={() => signOut()}
+              onClick={() => signOut({ callbackUrl: `${window.location.origin}/` })}
             >
               <LogoutIcon size={12} color={"#0D90FF"} />
               <p className="text-[20px] ml-3">Logout</p>

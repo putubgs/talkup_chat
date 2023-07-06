@@ -1,12 +1,15 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { forbiddenWords } from "@/dummy/forbiddenWords";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
 
 type ListItem = { date: string; time: string };
 
 function convertTo12Hour(timeStr: string): string {
   // Create a new Date object with today's date
   const time = new Date();
+
 
   // Set the hours and minutes of the date object using the time string
   time.setHours(Number(timeStr.split(":")[0]));
@@ -17,6 +20,14 @@ function convertTo12Hour(timeStr: string): string {
 }
 
 const AddStoryPage: React.FC = () => {
+  const {data: session } = useSession({
+    required: true,
+    onUnauthenticated(){
+      redirect('/login?callbackUrl=/adding_story')
+    }
+  })
+
+
   const [serverResult, setServerResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [loading, setLoading] = useState(false);

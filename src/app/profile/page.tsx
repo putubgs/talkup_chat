@@ -1,11 +1,35 @@
+"use client";
 import React from "react";
 import CircleIcon from "@/components/icons/CircleIcon";
 import PointsIcon from "@/components/icons/PointsIcon";
 import StarIcon from "@/components/icons/StarIcon";
 import GiftIcon from "@/components/icons/GiftIcon";
 import { FeedbackData } from "@/dummy/feedback";
+import { useSession } from "next-auth/react";
+import { redirect } from "next/navigation";
+import { Session } from "next-auth";
+
+
+
+interface CustomUser extends Session {
+  user: {
+    name?: string | null;
+    email?: string | null;
+    image?: string | null;
+    username?: string;
+  };
+}
 
 const ProfilePage: React.FC = () => {
+  const { data: session } = useSession({
+    required: true,
+    onUnauthenticated() {
+      redirect('/login?callbackUrl=/profile')
+    }
+  }) as { data: CustomUser | null };
+  
+  
+
   let totalRating = 0;
 
   FeedbackData.forEach((data) => {
@@ -19,7 +43,7 @@ const ProfilePage: React.FC = () => {
         <div className="flex pl-12 items-center justify-between">
           <CircleIcon size={100} color={"#EEEEEE"} />
           <div className="flex flex-col pl-4">
-            <div className="font-bold text-xl">Anonim#04062002</div>
+            <div className="font-bold text-xl">{session?.user?.username}</div>
             <div className="flex pt-2 space-x-5">
               <div className="flex">
                 <PointsIcon size={15} color="#0D90FF" />

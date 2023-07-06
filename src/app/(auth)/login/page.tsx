@@ -32,16 +32,20 @@ const Login: React.FC = () => {
 
   const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
-    signIn("credentials", {
-      username,
-      password,
-      callbackUrl: `${window.location.origin}/`, // or wherever you want to redirect after login
-      onError: (error: any) => {
-        setToastMessage(error.message);
-        setToastVisible(true);
-        setError(true);
-      },
-    });
+    try {
+      const result = await signIn("credentials", {
+        username,
+        password,
+        redirect: false,
+      });
+      if (!result?.ok) {
+        throw new Error("Invalid username or password");
+      }
+    } catch (error: any) {
+      setToastMessage(error.message);
+      setToastVisible(true);
+      setError(true);
+    }
   };
 
   useEffect(() => {
@@ -64,7 +68,11 @@ const Login: React.FC = () => {
   }, [session]);
   return (
     <section className="flex justify-between">
-      <Toast message={toastMessage} visible={toastVisible} error={errorStatus} />
+      <Toast
+        message={toastMessage}
+        visible={toastVisible}
+        error={errorStatus}
+      />
 
       <div className="bg-white flex flex-col items-center justify-center h-screen flex-grow space-y-12">
         <div className="text-xl font-bold">Let&apos;s Create Account!</div>
