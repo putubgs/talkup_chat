@@ -14,7 +14,14 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     if (!req.body) return res.status(400).json({ error: "Data is missing" });
 
-    const { username, email, password } = req.body;
+    const {
+      username,
+      email,
+      password,
+      points = 0,
+      rating = 0,
+      tier = 0,
+    } = req.body;
 
     try {
       const existingUser = await User.findOne({ username });
@@ -30,14 +37,16 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
           .status(409)
           .json({ error: "Email already exists", field: "email" });
       }
-      const userDoc = await User.create({ username, email, password });
+      const userDoc = await User.create({
+        username,
+        email,
+        password,
+        points,
+        rating,
+        tier,
+      });
 
-      const user = {
-        _id: userDoc._id,
-        username: userDoc.username,
-        email: userDoc.email,
-        password: userDoc.password,
-      };
+      const user = userDoc.toObject();
 
       return res.status(201).json({
         success: true,

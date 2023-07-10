@@ -17,6 +17,9 @@ interface CustomUser extends Session {
     email?: string | null;
     image?: string | null;
     username?: string;
+    points?: number;
+    rating?: number;
+    tier?: number;
   };
 }
 
@@ -27,9 +30,10 @@ const ProfilePage: React.FC = () => {
       redirect('/login?callbackUrl=/profile')
     }
   }) as { data: CustomUser | null };
+  console.log(session?.user?.points)
+  console.log(session?.user?.tier)
   
   
-
   let totalRating = 0;
 
   FeedbackData.forEach((data) => {
@@ -47,7 +51,7 @@ const ProfilePage: React.FC = () => {
             <div className="flex pt-2 space-x-5">
               <div className="flex">
                 <PointsIcon size={15} color="#0D90FF" />
-                <p className="pl-1 text-[#0D90FF]">1200 Point</p>
+                <p className="pl-1 text-[#0D90FF]">{session?.user?.points} Point</p>
               </div>
               <div className="flex">
                 <StarIcon size={15} color="#0D90FF" />
@@ -58,7 +62,7 @@ const ProfilePage: React.FC = () => {
         </div>
         <div className="flex flex-col items-center justify-right pr-12">
           <GiftIcon size={80} color={"#85878A"} />
-          <div className="-mt-[10px] text-[#85878A]">Tier 0</div>
+          <div className="-mt-[10px] text-[#85878A]">Tier {session?.user?.tier}</div>
         </div>
       </div>
       <hr className="ml-3 mr-3 border border-[1px] " />

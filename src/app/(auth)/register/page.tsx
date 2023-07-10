@@ -8,6 +8,9 @@ import axios from "axios";
 
 const Register: React.FC = () => {
   const defaultValue = "Anonymous#";
+  const points = 0;
+  const rating = 0;
+  const tier = 0;
   const [username, setUsername] = useState(defaultValue);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,6 +53,9 @@ const Register: React.FC = () => {
       username,
       email,
       password: hashedPassword,
+      points,
+      rating,
+      tier
     };
 
     try {

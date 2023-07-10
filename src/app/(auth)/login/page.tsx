@@ -7,7 +7,7 @@ import { Toast } from "@/components/Toast";
 import { useSession, signIn } from "next-auth/react";
 
 const Login: React.FC = () => {
-  const [username, setUsername] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
@@ -19,7 +19,7 @@ const Login: React.FC = () => {
   );
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setUsername(event.target.value);
+    setEmail(event.target.value);
   };
 
   const handlePasswordChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -34,12 +34,12 @@ const Login: React.FC = () => {
     event.preventDefault();
     try {
       const result = await signIn("credentials", {
-        username,
+        email,
         password,
         redirect: false,
       });
       if (!result?.ok) {
-        throw new Error("Invalid username or password");
+        throw new Error("Invalid email or password");
       }
     } catch (error: any) {
       setToastMessage(error.message);
@@ -49,7 +49,7 @@ const Login: React.FC = () => {
   };
 
   useEffect(() => {
-    if (username != "" && password != "") {
+    if (email != "" && password != "") {
       setButtonClass(
         "bg-[#0D90FF] text-xl text-white font-bold p-3 rounded-full w-full"
       );
@@ -58,7 +58,7 @@ const Login: React.FC = () => {
         "bg-gray-300 text-xl text-gray-400 font-bold p-3 rounded-full w-full"
       );
     }
-  }, [username, password]);
+  }, [email, password]);
 
   // redirect user if already logged in
   useEffect(() => {
@@ -73,19 +73,18 @@ const Login: React.FC = () => {
         visible={toastVisible}
         error={errorStatus}
       />
-
       <div className="bg-white flex flex-col items-center justify-center h-screen flex-grow space-y-12">
         <div className="text-xl font-bold">Let&apos;s Create Account!</div>
         <form
           className="flex flex-col w-[500px] space-y-3"
           onSubmit={handleSubmit}
         >
-          <div className="text-xl">Username:</div>
+          <div className="text-xl">Email:</div>
           <input
             className="border-2 border-[#656ED3] h-12 rounded-full p-4"
-            value={username}
+            value={email}
             onChange={handleInputChange}
-            placeholder="Input your username"
+            placeholder="Input your email"
           />
           <div className="text-xl">Password:</div>
           <div
