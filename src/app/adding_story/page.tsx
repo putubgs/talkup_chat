@@ -7,26 +7,21 @@ import { redirect } from "next/navigation";
 type ListItem = { date: string; time: string };
 
 function convertTo12Hour(timeStr: string): string {
-  // Create a new Date object with today's date
   const time = new Date();
 
-
-  // Set the hours and minutes of the date object using the time string
   time.setHours(Number(timeStr.split(":")[0]));
   time.setMinutes(Number(timeStr.split(":")[1]));
 
-  // Use toLocaleTimeString to format the time in 12-hour format with AM/PM
   return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
 const AddStoryPage: React.FC = () => {
-  const {data: session } = useSession({
+  const { data: session } = useSession({
     required: true,
-    onUnauthenticated(){
-      redirect('/login?callbackUrl=/adding_story')
-    }
-  })
-
+    onUnauthenticated() {
+      redirect("/login?callbackUrl=/adding_story");
+    },
+  });
 
   const [serverResult, setServerResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -38,6 +33,7 @@ const AddStoryPage: React.FC = () => {
   const [minTime, setMinTime] = useState("00:00");
   const [isDirect, setIsDirect] = useState(false);
   const [storyValue, setStoryValue] = useState("");
+  const [algorithm, setAlgorithm] = useState(1);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
@@ -117,7 +113,6 @@ const AddStoryPage: React.FC = () => {
 
     const asteriskCount = storyValue.split("*").length - 1;
     if (asteriskCount > 1) {
-      // Show a warning pop-up or perform any other action
       alert("Warning: Your story contained bad words, please be nice!");
       handleReset();
       return;
@@ -129,7 +124,6 @@ const AddStoryPage: React.FC = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ story: storyValue }),
       });
-      console.log("api run");
       const data = await response.json();
 
       const convertedSchedules = list.map((item) => ({
@@ -162,6 +156,11 @@ const AddStoryPage: React.FC = () => {
   const handleCloseModal = () => {
     setShowModal(false);
     setServerResult(null);
+  };
+
+
+  const clickedAlgorithm = (num: number) => {
+    setAlgorithm(num);
   };
 
   const renderLoadingModal = () => (
@@ -201,7 +200,22 @@ const AddStoryPage: React.FC = () => {
     <section className="flex flex-col min-w-0 p-12">
       {showModal && renderLoadingModal()}
       <div className="w-full bg-[#F6FAFF] rounded-lg p-6 flex flex-col space-y-10">
-        <div className="font-bold text-[#16A6B7] text-xl">Write Your Story</div>
+        <div className="flex justify-between">
+          <div className="font-bold text-[#16A6B7] text-xl">
+            Write Your Story
+          </div>
+          <div className="flex">
+            <div className={`${algorithm === 1 ? "bg-[#0D90FF] text-white" : "border border-[#0D90FF] text-[#AAAAAA]"} p-2 rounded-l-xl pl-4 pr-4 cursor-pointer`} onClick={() => clickedAlgorithm(1)}>
+              Logistic Regression
+            </div>
+            <div className={`${algorithm === 2 ? "bg-[#0D90FF] text-white" : "border border-[#0D90FF] text-[#AAAAAA]"} p-2 pl-4 pr-4 cursor-pointer`} onClick={() => clickedAlgorithm(2)}>
+              SVM
+            </div>
+            <div className={`${algorithm === 3 ? "bg-[#0D90FF] text-white" : "border border-[#0D90FF] text-[#AAAAAA]"} p-2 rounded-r-xl pl-4 pr-4 cursor-pointer`} onClick={() => clickedAlgorithm(3)}>
+              Naive Bayes
+            </div>
+          </div>
+        </div>
         <div className="mt-4">
           <div className="flex items-center justify-left">
             <label

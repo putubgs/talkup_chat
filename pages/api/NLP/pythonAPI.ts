@@ -4,7 +4,6 @@ import { exec } from 'child_process';
 export default function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'POST') {
         const input_story = req.body.story;
-        console.log("hello api")
         
         exec(`/Users/putubgs/Developer/talkup_chat/myenv/bin/python3.9 /Users/putubgs/Developer/talkup_chat/src/nlp/storyNLP.py "${input_story}"`, (error, stdout, stderr) => {
             if (error) {
