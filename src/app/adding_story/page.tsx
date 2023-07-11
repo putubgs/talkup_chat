@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { forbiddenWords } from "@/dummy/forbiddenWords";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
@@ -33,7 +33,11 @@ const AddStoryPage: React.FC = () => {
   const [minTime, setMinTime] = useState("00:00");
   const [isDirect, setIsDirect] = useState(false);
   const [storyValue, setStoryValue] = useState("");
-  const [algorithm, setAlgorithm] = useState(1);
+  const [algorithm, setAlgorithm] = useState("Logistic Regression");
+  const [apiRoute, setApiRoute] = useState("");
+  const [timeCount, setTimeCount] = useState(0);
+  const timer = useRef<NodeJS.Timeout | null>(null);
+  const [totalTime, setTotalTime] = useState(0);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
@@ -103,6 +107,8 @@ const AddStoryPage: React.FC = () => {
     setIsDirect(false);
     setList([]);
     setStoryValue("");
+    setTimeCount(0);
+        setShowModal(false);
   };
 
   const handleUpload = async () => {
@@ -119,7 +125,7 @@ const AddStoryPage: React.FC = () => {
     } else {
       setShowModal(true);
       setLoading(true);
-      const response = await fetch("/api/pythonAPI", {
+      const response = await fetch(`/api/NLP/${apiRoute}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ story: storyValue }),
@@ -138,30 +144,68 @@ const AddStoryPage: React.FC = () => {
           schedules: convertedSchedules,
           story: storyValue,
           category: data.result,
+          algorithm: algorithm,
+          time: totalTime.toFixed(2)
         };
 
-        handleReset();
+        // handleReset();
 
         console.log(storyData);
         setServerResult(data.result);
       } else {
         setStoryLabel(false);
-        handleReset();
+        // handleReset();
       }
 
       setLoading(false);
     }
   };
 
-  const handleCloseModal = () => {
-    setShowModal(false);
-    setServerResult(null);
+  // const handleCloseModal = () => {
+  //   setShowModal(false);
+  //   setServerResult(null);
+  // };
+
+  const clickedAlgorithm = (text: string) => {
+    setAlgorithm(text);
   };
 
+  useEffect(() => {
+    switch (algorithm) {
+      case "Logistic Regression":
+        setApiRoute("logRegression");
+        break;
+      case "SVM":
+        setApiRoute("SVM");
+        break;
+      case "Naive Bayes":
+        setApiRoute("naiveBayes");
+        break;
+    }
+  }, [algorithm]);
 
-  const clickedAlgorithm = (num: number) => {
-    setAlgorithm(num);
-  };
+  useEffect(() => {
+    if (loading) {
+      // Start the timer
+      timer.current = setInterval(() => {
+        setTimeCount((prevTimeCount) => prevTimeCount + 0.01);
+      }, 10); // Increase count every 10 ms
+    } else {
+      // Stop the timer when loading is done
+      if (timer.current) {
+        clearInterval(timer.current);
+        setTotalTime(timeCount);
+      }
+    }
+
+    // Cleanup effect to clear the timer when the component unmounts or when loading state changes
+    return () => {
+      if (timer.current) {
+        clearInterval(timer.current);
+      }
+    };
+
+  }, [loading, timeCount, totalTime]);
 
   const renderLoadingModal = () => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -169,16 +213,22 @@ const AddStoryPage: React.FC = () => {
         {loading ? (
           <>
             <div className="loader ease-linear rounded-full border-8 border-t-8 border-gray-200 h-64 w-64 mb-4"></div>
-            <h2 className="text-center text-gray-600">
+            <div className="text-center text-gray-600">
               The AI is Reading, please wait!
-            </h2>
+              <br />{" "}
+              <span className="font-bold">
+                Time elapsed: {timeCount.toFixed(2)}
+              </span>
+            </div>
           </>
         ) : (
           <>
             {storyLabel ? (
-              <p className="text-center text-gray-600 text-xl mb-6 font-bold">
-                Result: {serverResult}
-              </p>
+              <div className="flex flex-col text-center text-gray-600 text-xl mb-6 font-bold">
+                <div className="text-xs">Total time: {totalTime.toFixed(2)}</div>
+                <div className="text-xs">Algorithm: {algorithm}</div>
+                <div className="pt-6">Result: {serverResult}</div>
+              </div>
             ) : (
               <p className="text-center text-gray-600 text-xl mb-6 font-bold">
                 Please specify the problem!
@@ -186,7 +236,7 @@ const AddStoryPage: React.FC = () => {
             )}
             <button
               className="bg-[#0D90FF] p-2 pl-12 pr-12 rounded-xl text-white"
-              onClick={handleCloseModal}
+              onClick={handleReset}
             >
               OK!
             </button>
@@ -205,13 +255,34 @@ const AddStoryPage: React.FC = () => {
             Write Your Story
           </div>
           <div className="flex">
-            <div className={`${algorithm === 1 ? "bg-[#0D90FF] text-white" : "border border-[#0D90FF] text-[#AAAAAA]"} p-2 rounded-l-xl pl-4 pr-4 cursor-pointer`} onClick={() => clickedAlgorithm(1)}>
+            <div
+              className={`${
+                algorithm === "Logistic Regression"
+                  ? "bg-[#0D90FF] text-white"
+                  : "border border-[#0D90FF] text-[#AAAAAA]"
+              } p-2 rounded-l-xl pl-4 pr-4 cursor-pointer`}
+              onClick={() => clickedAlgorithm("Logistic Regression")}
+            >
               Logistic Regression
             </div>
-            <div className={`${algorithm === 2 ? "bg-[#0D90FF] text-white" : "border border-[#0D90FF] text-[#AAAAAA]"} p-2 pl-4 pr-4 cursor-pointer`} onClick={() => clickedAlgorithm(2)}>
+            <div
+              className={`${
+                algorithm === "SVM"
+                  ? "bg-[#0D90FF] text-white"
+                  : "border border-[#0D90FF] text-[#AAAAAA]"
+              } p-2 pl-4 pr-4 cursor-pointer`}
+              onClick={() => clickedAlgorithm("SVM")}
+            >
               SVM
             </div>
-            <div className={`${algorithm === 3 ? "bg-[#0D90FF] text-white" : "border border-[#0D90FF] text-[#AAAAAA]"} p-2 rounded-r-xl pl-4 pr-4 cursor-pointer`} onClick={() => clickedAlgorithm(3)}>
+            <div
+              className={`${
+                algorithm === "Naive Bayes"
+                  ? "bg-[#0D90FF] text-white"
+                  : "border border-[#0D90FF] text-[#AAAAAA]"
+              } p-2 rounded-r-xl pl-4 pr-4 cursor-pointer`}
+              onClick={() => clickedAlgorithm("Naive Bayes")}
+            >
               Naive Bayes
             </div>
           </div>

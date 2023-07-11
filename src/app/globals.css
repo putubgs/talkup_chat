@@ -55,6 +55,7 @@ input:checked ~ .toggle__dot {
   border-top-color: #3498db;
   -webkit-animation: spinner 1.5s linear infinite;
   animation: spinner 1.5s linear infinite;
+  position: relative;
 }
 
 @-webkit-keyframes spinner {

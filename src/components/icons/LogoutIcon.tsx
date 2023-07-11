@@ -20,7 +20,7 @@ const LogoutIcon: FC<LogoutIconProps> = ({ size, color }) => (
     <g
       id="Iconly/Bold/Logout"
       stroke="none"
-      stroke-width="1"
+      strokeWidth="1"
       fill="none"
       fillRule="evenodd"
     >
