@@ -207,7 +207,7 @@ const ProfilePage: React.FC = () => {
                         x="20"
                         y="95"
                         fill="white"
-                        font-size="20"
+                        fontSize="20"
                         fontFamily="Verdana"
                       >
                         Listening
@@ -216,7 +216,7 @@ const ProfilePage: React.FC = () => {
                         x="20"
                         y="130"
                         fill="white"
-                        font-size="20"
+                        fontSize="20"
                         fontFamily="Verdana"
                       >
                         23 Story
@@ -262,7 +262,7 @@ const ProfilePage: React.FC = () => {
                         x="20"
                         y="95"
                         fill="white"
-                        font-size="20"
+                        fontSize="20"
                         fontFamily="Verdana"
                       >
                         Your Story
@@ -271,7 +271,7 @@ const ProfilePage: React.FC = () => {
                         x="20"
                         y="130"
                         fill="white"
-                        font-size="20"
+                        fontSize="20"
                         fontFamily="Verdana"
                       >
                         23 Story
