@@ -9,8 +9,10 @@ const poppins = Poppins({ subsets: ["latin"], weight: "400" });
 
 export default function RootLayout({
   children,
+  session, // This should be passed to RootLayout from _app.js
 }: {
   children: React.ReactNode;
+  session: any; // Adjust to your session's type
 }) {
   const isLoginPage = usePathname() === "/login";
   const isRegisterPage = usePathname() === "/register";
@@ -19,7 +21,7 @@ export default function RootLayout({
     <html lang="en">
       <title>TalkUp Mental Health Chat</title>
       <body className={poppins.className}>
-        <NextAuthProvider>
+        <NextAuthProvider session={session}>
           {isLoginPage || isRegisterPage ? (
             children
           ) : (

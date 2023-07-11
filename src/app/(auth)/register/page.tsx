@@ -11,11 +11,12 @@ const Register: React.FC = () => {
   const points = 0;
   const rating = 0;
   const tier = 0;
+  const avatar = 0;
   const [username, setUsername] = useState(defaultValue);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
-  const [toastMessage, setToastMessage] = useState('');
+  const [toastMessage, setToastMessage] = useState("");
   const [buttonClass, setButtonClass] = useState(
     "bg-gray-400 text-gray-600 font-bold p-3 rounded-full w-full"
   );
@@ -55,14 +56,15 @@ const Register: React.FC = () => {
       password: hashedPassword,
       points,
       rating,
-      tier
+      tier,
+      avatar,
     };
 
     try {
       await axios.post("http://localhost:3000/api/auth/register", userData);
-      setToastMessage('Data submitted successfully!');
+      setToastMessage("Data submitted successfully!");
       setToastVisible(true);
-    
+
       setUsername("Anonymous#");
       setEmail("");
       setPassword("");
@@ -71,9 +73,11 @@ const Register: React.FC = () => {
       setPasswordInputClass("border-2 border-[#656ED3] h-12 rounded-full p-4");
     } catch (error) {
       if (axios.isAxiosError(error) && error.response) {
-        if(error.response.data.field === "username"){
-          setUsernameInputClass("border-2 border-red-500 h-12 rounded-full p-4");
-        }else if(error.response.data.field === "email"){
+        if (error.response.data.field === "username") {
+          setUsernameInputClass(
+            "border-2 border-red-500 h-12 rounded-full p-4"
+          );
+        } else if (error.response.data.field === "email") {
           setEmailInputClass("border-2 border-red-500 h-12 rounded-full p-4");
         }
         setToastMessage(error.response.data.error);
@@ -81,7 +85,6 @@ const Register: React.FC = () => {
         setToastVisible(true);
       }
     }
-    
   };
 
   const handleInputChange = (event: ChangeEvent<HTMLInputElement>) => {

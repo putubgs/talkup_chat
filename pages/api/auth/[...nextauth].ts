@@ -12,6 +12,7 @@ interface CustomUser extends NextAuthUser {
   points: number;
   rating: number;
   tier: number;
+  avatar: number;
 }
 
 export default NextAuth({
@@ -52,12 +53,16 @@ export default NextAuth({
           points: user.points,
           rating: user.rating,
           tier: user.tier,
+          avatar: user.avatar,
         };
       },
     }),
   ],
   callbacks: {
-    async jwt({token, user}) {
+    async jwt({token, user, trigger, session}) {
+      if(trigger == "update"){
+        return {...token, ...session.user}
+      }
       if (user) {
         token.id = user.id;
         token.username = (user as CustomUser).username;
@@ -65,6 +70,8 @@ export default NextAuth({
         token.points = (user as CustomUser).points;
         token.rating = (user as CustomUser).rating;
         token.tier = (user as CustomUser).tier;
+        token.avatar = (user as CustomUser).avatar;
+
       }
       return token;
     },

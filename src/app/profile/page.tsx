@@ -1,6 +1,5 @@
 "use client";
-import React from "react";
-import CircleIcon from "@/components/icons/CircleIcon";
+import React, { useEffect, useState } from "react";
 import PointsIcon from "@/components/icons/PointsIcon";
 import StarIcon from "@/components/icons/StarIcon";
 import GiftIcon from "@/components/icons/GiftIcon";
@@ -8,50 +7,159 @@ import { FeedbackData } from "@/dummy/feedback";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { Session } from "next-auth";
-
-
+import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import Image from "next/image";
+import styles from "./AvatarWithOverlay.module.css";
+import { Dialog, DialogTitle, Box } from "@mui/material";
+import { styled } from "@mui/system";
+import AvatarChanger from "@/components/AvatarChanger";
+import { avatars } from "@/dummy/avatars";
+import axios from "axios";
 
 interface CustomUser extends Session {
   user: {
+    id?: string;
     name?: string | null;
     email?: string | null;
-    image?: string | null;
     username?: string;
     points?: number;
     rating?: number;
     tier?: number;
+    avatar?: number;
   };
 }
 
 const ProfilePage: React.FC = () => {
-  const { data: session } = useSession({
+  let { data: session, update } = useSession({
     required: true,
     onUnauthenticated() {
-      redirect('/login?callbackUrl=/profile')
+      redirect("/login?callbackUrl=/profile");
+    },
+  }) as { data: CustomUser | null, update: any };
+  console.log(session?.user?.points);
+  console.log(session?.user?.tier);
+  console.log(session?.user?.avatar);
+  const [selectedAvatar, setSelectedAvatar] = useState<number | undefined>();
+  const [pendingAvatar, setPendingAvatar] = useState<number | undefined>();
+
+  useEffect(() => {
+    setSelectedAvatar(session?.user?.avatar);
+    setPendingAvatar(session?.user?.avatar);
+  }, [session]);
+
+  const clickedAvatar = (num: number) => {
+    setPendingAvatar(num)
+  };
+
+  const agreeAvatarChange = async () => {
+    if (pendingAvatar !== null) {
+      try {
+        const response = await axios.put('/api/editProfile/update-avatar', {
+          userId: session?.user?.id,
+          newAvatar: pendingAvatar,
+        });
+        const updatedUser = response.data.data;
+        setSelectedAvatar(updatedUser.avatar);
+        
+        await update({
+          ...session,
+          user: {
+            ...session?.user,
+            token: "dddd",
+            avatar: updatedUser.avatar
+          }
+        })
+  
+      } catch (error) {
+        console.error(error);
+      }
+      console.log(session?.user?.avatar)
+      setPendingAvatar(session?.user?.avatar);
     }
-  }) as { data: CustomUser | null };
-  console.log(session?.user?.points)
-  console.log(session?.user?.tier)
+    handleClose();
+  };
   
-  
+
   let totalRating = 0;
 
   FeedbackData.forEach((data) => {
     totalRating += data.rating;
   });
 
+  const [open, setOpen] = useState(false);
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
+
+  const handleClose = () => {
+    setOpen(false);
+  };
+
+  const CustomDialog = styled(Dialog)(({ theme }) => ({
+    "& .MuiDialog-paper": {
+      width: "100%",
+      maxWidth: 800,
+      height: "35%",
+      padding: "20px",
+    },
+  }));
+
   const averageRating = (totalRating / FeedbackData.length).toFixed(1);
   return (
     <section className="flex flex-col min-w-0">
       <div className="flex h-[150px] p-7 justify-between min-w-0 items-center">
         <div className="flex pl-12 items-center justify-between">
-          <CircleIcon size={100} color={"#EEEEEE"} />
+          <div
+            className={`${styles.avatarContainer} cursor-pointer`}
+            onClick={handleOpen}
+          >
+            <Image
+              src={avatars[selectedAvatar ?? 0]}
+              alt="avatar"
+              layout="fill"
+              objectFit="cover"
+              objectPosition="center"
+            />
+            <div className={styles.overlay}>
+              <PhotoCameraIcon sx={{ color: "white" }} />
+            </div>
+          </div>
+          <CustomDialog
+            onClose={handleClose}
+            aria-labelledby="customized-dialog-title"
+            open={open}
+          >
+            <DialogTitle id="customized-dialog-title" className="text-center">
+              <div className="text-xl font-bold">
+                Choose Your Avatar Profile
+              </div>
+            </DialogTitle>
+            <Box sx={{ bgcolor: "background.paper", borderRadius: 2, p: 2 }}>
+              <div className="flex flex-col space-y-6">
+                <AvatarChanger
+                  onSelect={clickedAvatar}
+                  pendingAvatar={pendingAvatar ?? 0}
+                />
+                <div className="flex items-center justify-center">
+                  <button
+                    className="p-2 bg-[#3817E2] pl-12 pr-12 text-white rounded-xl border-2 border-[#0D90FF]"
+                    onClick={agreeAvatarChange}
+                  >
+                    Agree!
+                  </button>
+                </div>
+              </div>
+            </Box>
+          </CustomDialog>
           <div className="flex flex-col pl-4">
             <div className="font-bold text-xl">{session?.user?.username}</div>
             <div className="flex pt-2 space-x-5">
               <div className="flex">
                 <PointsIcon size={15} color="#0D90FF" />
-                <p className="pl-1 text-[#0D90FF]">{session?.user?.points} Point</p>
+                <p className="pl-1 text-[#0D90FF]">
+                  {session?.user?.points} Point
+                </p>
               </div>
               <div className="flex">
                 <StarIcon size={15} color="#0D90FF" />
@@ -62,7 +170,9 @@ const ProfilePage: React.FC = () => {
         </div>
         <div className="flex flex-col items-center justify-right pr-12">
           <GiftIcon size={80} color={"#85878A"} />
-          <div className="-mt-[10px] text-[#85878A]">Tier {session?.user?.tier}</div>
+          <div className="-mt-[10px] text-[#85878A]">
+            Tier {session?.user?.tier}
+          </div>
         </div>
       </div>
       <hr className="ml-3 mr-3 border border-[1px] " />
@@ -108,7 +218,7 @@ const ProfilePage: React.FC = () => {
                         y="95"
                         fill="white"
                         font-size="20"
-                        font-family="Verdana"
+                        fontFamily="Verdana"
                       >
                         Listening
                       </text>
@@ -117,7 +227,7 @@ const ProfilePage: React.FC = () => {
                         y="130"
                         fill="white"
                         font-size="20"
-                        font-family="Verdana"
+                        fontFamily="Verdana"
                       >
                         23 Story
                       </text>
@@ -163,7 +273,7 @@ const ProfilePage: React.FC = () => {
                         y="95"
                         fill="white"
                         font-size="20"
-                        font-family="Verdana"
+                        fontFamily="Verdana"
                       >
                         Your Story
                       </text>
@@ -172,7 +282,7 @@ const ProfilePage: React.FC = () => {
                         y="130"
                         fill="white"
                         font-size="20"
-                        font-family="Verdana"
+                        fontFamily="Verdana"
                       >
                         23 Story
                       </text>

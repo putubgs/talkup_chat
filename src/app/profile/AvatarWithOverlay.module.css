@@ -1,0 +1,26 @@
+.avatarContainer {
+    position: relative;
+    width: 100px;
+    height: 100px;
+  }
+  
+  .overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: rgba(0, 0, 0, 0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s, background-color 0.3s;
+  }
+  
+  .avatarContainer:hover .overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+  }
+  

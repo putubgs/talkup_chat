@@ -21,6 +21,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       points = 0,
       rating = 0,
       tier = 0,
+      avatar = 0
     } = req.body;
 
     try {
@@ -44,6 +45,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
         points,
         rating,
         tier,
+        avatar
       });
 
       const user = userDoc.toObject();

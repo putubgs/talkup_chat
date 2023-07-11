@@ -2,6 +2,10 @@ import { Schema, model, models } from "mongoose";
 
 const userSchema = new Schema(
   {
+    userId:{
+      type: String,
+      required: true,
+    },
     username: {
       type: String,
       required: true,
@@ -25,6 +29,11 @@ const userSchema = new Schema(
       required: true,
     },
     tier: {
+      type: Number,
+      default: 0,
+      required: true,
+    },
+    avatar: {
       type: Number,
       default: 0,
       required: true,
