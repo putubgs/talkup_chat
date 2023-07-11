@@ -12,7 +12,7 @@ import Image from "next/image";
 import styles from "./AvatarWithOverlay.module.css";
 import { Dialog, DialogTitle, Box } from "@mui/material";
 import { styled } from "@mui/system";
-import AvatarChanger from "@/components/AvatarChanger";
+import AvatarChanger from "@/components/profile/AvatarChanger";
 import { avatars } from "@/dummy/avatars";
 import axios from "axios";
 
@@ -35,7 +35,7 @@ const ProfilePage: React.FC = () => {
     onUnauthenticated() {
       redirect("/login?callbackUrl=/profile");
     },
-  }) as { data: CustomUser | null, update: any };
+  }) as { data: CustomUser | null; update: any };
   console.log(session?.user?.points);
   console.log(session?.user?.tier);
   console.log(session?.user?.avatar);
@@ -48,37 +48,35 @@ const ProfilePage: React.FC = () => {
   }, [session]);
 
   const clickedAvatar = (num: number) => {
-    setPendingAvatar(num)
+    setPendingAvatar(num);
   };
 
   const agreeAvatarChange = async () => {
     if (pendingAvatar !== null) {
       try {
-        const response = await axios.put('/api/editProfile/update-avatar', {
+        const response = await axios.put("/api/editProfile/update-avatar", {
           userId: session?.user?.id,
           newAvatar: pendingAvatar,
         });
         const updatedUser = response.data.data;
         setSelectedAvatar(updatedUser.avatar);
-        
+
         await update({
           ...session,
           user: {
             ...session?.user,
             token: "dddd",
-            avatar: updatedUser.avatar
-          }
-        })
-  
+            avatar: updatedUser.avatar,
+          },
+        });
       } catch (error) {
         console.error(error);
       }
-      console.log(session?.user?.avatar)
+      console.log(session?.user?.avatar);
       setPendingAvatar(session?.user?.avatar);
     }
     handleClose();
   };
-  
 
   let totalRating = 0;
 
@@ -136,20 +134,12 @@ const ProfilePage: React.FC = () => {
               </div>
             </DialogTitle>
             <Box sx={{ bgcolor: "background.paper", borderRadius: 2, p: 2 }}>
-              <div className="flex flex-col space-y-6">
-                <AvatarChanger
-                  onSelect={clickedAvatar}
-                  pendingAvatar={pendingAvatar ?? 0}
-                />
-                <div className="flex items-center justify-center">
-                  <button
-                    className="p-2 bg-[#3817E2] pl-12 pr-12 text-white rounded-xl border-2 border-[#0D90FF]"
-                    onClick={agreeAvatarChange}
-                  >
-                    Agree!
-                  </button>
-                </div>
-              </div>
+              <AvatarChanger
+                session={session}
+                update={update}
+                onClose={handleClose}
+                setAvatar={setSelectedAvatar}
+              />
             </Box>
           </CustomDialog>
           <div className="flex flex-col pl-4">
