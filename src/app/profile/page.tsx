@@ -182,7 +182,7 @@ const ProfilePage: React.FC = () => {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <g clip-path="url(#clip0_130_241)">
+                    <g clipPath="url(#clip0_130_241)">
                       <rect
                         width="399.451"
                         height="157.322"
@@ -237,7 +237,7 @@ const ProfilePage: React.FC = () => {
                     fill="none"
                     xmlns="http://www.w3.org/2000/svg"
                   >
-                    <g clip-path="url(#clip0_130_241)">
+                    <g clipPath="url(#clip0_130_241)">
                       <rect
                         width="399.451"
                         height="157.322"
