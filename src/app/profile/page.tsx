@@ -36,9 +36,6 @@ const ProfilePage: React.FC = () => {
       redirect("/login?callbackUrl=/profile");
     },
   }) as { data: CustomUser | null; update: any };
-  console.log(session?.user?.points);
-  console.log(session?.user?.tier);
-  console.log(session?.user?.avatar);
   const [selectedAvatar, setSelectedAvatar] = useState<number | undefined>();
   const [pendingAvatar, setPendingAvatar] = useState<number | undefined>();
 
@@ -72,7 +69,6 @@ const ProfilePage: React.FC = () => {
       } catch (error) {
         console.error(error);
       }
-      console.log(session?.user?.avatar);
       setPendingAvatar(session?.user?.avatar);
     }
     handleClose();

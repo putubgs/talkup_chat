@@ -52,7 +52,7 @@ export default NextAuth({
           email: user.email,
           points: user.points,
           rating: user.rating,
-          tier: user.tier,
+           tier: user.tier,
           avatar: user.avatar,
         };
       },
@@ -80,13 +80,13 @@ export default NextAuth({
       return session;
     },
   },
-  secret: process.env.SECRET, // Replace this with your own secret
+  secret: process.env.SECRET,
   session: {
-    maxAge: 30 * 24 * 60 * 60, // 30 days
-    updateAge: 24 * 60 * 60, // 24 hours
+    maxAge: 30 * 24 * 60 * 60,
+    updateAge: 24 * 60 * 60,
   },
   jwt: {
-    secret: process.env.JWT_SECRET, // Replace this with your own JWT secret
+    secret: process.env.JWT_SECRET,
   },
   pages: {
     error: '/auth/error',

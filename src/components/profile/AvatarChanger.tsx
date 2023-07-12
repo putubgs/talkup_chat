@@ -53,7 +53,6 @@ const AvatarChanger: React.FC<{
       } catch (error) {
         console.error(error);
       }
-      console.log(session?.user?.avatar);
       setPendingAvatar(session?.user?.avatar);
     }
     onClose();

@@ -3,8 +3,14 @@ import React, { useState, useEffect, useRef } from "react";
 import { forbiddenWords } from "@/dummy/forbiddenWords";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import axios from "axios";
+import { Toast } from "@/components/Toast";
 
 type ListItem = { date: string; time: string };
+type Schedule = {
+  date: string;
+  time: string;
+};
 
 function convertTo12Hour(timeStr: string): string {
   const time = new Date();
@@ -15,13 +21,19 @@ function convertTo12Hour(timeStr: string): string {
   return time.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
 }
 
+interface CustomUser {
+  user: {
+    id?: string;
+  };
+}
+
 const AddStoryPage: React.FC = () => {
   const { data: session } = useSession({
     required: true,
     onUnauthenticated() {
       redirect("/login?callbackUrl=/adding_story");
     },
-  });
+  }) as { data: CustomUser | null };
 
   const [serverResult, setServerResult] = useState(null);
   const [showModal, setShowModal] = useState(false);
@@ -38,6 +50,10 @@ const AddStoryPage: React.FC = () => {
   const [timeCount, setTimeCount] = useState(0);
   const timer = useRef<NodeJS.Timeout | null>(null);
   const [totalTime, setTotalTime] = useState(0);
+  const [scheduleList, setScheduleList] = useState<Schedule[]>([]);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVisible, setToastVisible] = useState(false);
+  const [errorStatus, setError] = useState(false);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = event.target.value;
@@ -108,7 +124,38 @@ const AddStoryPage: React.FC = () => {
     setList([]);
     setStoryValue("");
     setTimeCount(0);
+    setShowModal(false);
+  };
+
+  const handleApprove = async () => {
+    const storyData = {
+      userId: session?.user?.id,
+      storyType: isDirect ? "Scheduled" : "Direct",
+      schedules: scheduleList,
+      story: storyValue,
+      category: serverResult,
+      algorithm: algorithm,
+      duration: totalTime.toFixed(2),
+      activation: true,
+    };
+    console.log(storyData);
+
+    try {
+      await axios.post(
+        "http://localhost:3000/api/dataUpload/addStory",
+        storyData
+      );
+      handleReset();
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        setToastMessage(error.response.data.error);
+        console.log(error.response.data.error);
         setShowModal(false);
+        setToastVisible(true);
+        setError(true);
+        handleReset();
+      }
+    }
   };
 
   const handleUpload = async () => {
@@ -139,32 +186,15 @@ const AddStoryPage: React.FC = () => {
 
       if (data.result != "Others") {
         setStoryLabel(true);
-        const storyData = {
-          storyType: isDirect ? "Direct" : "Scheduled",
-          schedules: convertedSchedules,
-          story: storyValue,
-          category: data.result,
-          algorithm: algorithm,
-          time: totalTime.toFixed(2)
-        };
-
-        // handleReset();
-
-        console.log(storyData);
-        setServerResult(data.result);
       } else {
         setStoryLabel(false);
-        // handleReset();
       }
 
+      setScheduleList(convertedSchedules);
+      setServerResult(data.result);
       setLoading(false);
     }
   };
-
-  // const handleCloseModal = () => {
-  //   setShowModal(false);
-  //   setServerResult(null);
-  // };
 
   const clickedAlgorithm = (text: string) => {
     setAlgorithm(text);
@@ -204,7 +234,6 @@ const AddStoryPage: React.FC = () => {
         clearInterval(timer.current);
       }
     };
-
   }, [loading, timeCount, totalTime]);
 
   const renderLoadingModal = () => (
@@ -225,7 +254,9 @@ const AddStoryPage: React.FC = () => {
           <>
             {storyLabel ? (
               <div className="flex flex-col text-center text-gray-600 text-xl mb-6 font-bold">
-                <div className="text-xs">Total time: {totalTime.toFixed(2)}</div>
+                <div className="text-xs">
+                  Total time: {totalTime.toFixed(2)}
+                </div>
                 <div className="text-xs">Algorithm: {algorithm}</div>
                 <div className="pt-6">Result: {serverResult}</div>
               </div>
@@ -234,12 +265,20 @@ const AddStoryPage: React.FC = () => {
                 Please specify the problem!
               </p>
             )}
-            <button
-              className="bg-[#0D90FF] p-2 pl-12 pr-12 rounded-xl text-white"
-              onClick={handleReset}
-            >
-              OK!
-            </button>
+            <div className="flex space-x-4">
+              <button
+                className="bg-[#EE1414] p-2 pl-12 pr-12 rounded-xl text-white"
+                onClick={handleReset}
+              >
+                NO!
+              </button>
+              <button
+                className="bg-[#0D90FF] p-2 pl-12 pr-12 rounded-xl text-white"
+                onClick={handleApprove}
+              >
+                OK!
+              </button>
+            </div>
           </>
         )}
       </div>
@@ -248,6 +287,11 @@ const AddStoryPage: React.FC = () => {
 
   return (
     <section className="flex flex-col min-w-0 p-12">
+      <Toast
+        message={toastMessage}
+        visible={toastVisible}
+        error={errorStatus}
+      />
       {showModal && renderLoadingModal()}
       <div className="w-full bg-[#F6FAFF] rounded-lg p-6 flex flex-col space-y-10">
         <div className="flex justify-between">
