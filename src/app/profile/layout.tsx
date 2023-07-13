@@ -43,6 +43,10 @@ export default function Layout({ children }: LayoutProps) {
   const [tierColor, setTierColor] = useState("#000000");
 
   useEffect(() => {
+    setSelectedAvatar(session?.user?.avatar);
+  }, [session]);
+
+  useEffect(() => {
     if (session && session.user) {
       const newTier = getTierFromPoints(session.user.points ?? 0);
 
