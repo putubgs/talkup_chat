@@ -11,11 +11,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   switch (method) {
     case 'PUT':
       try {
-        // Update the user's avatar in the database
         const user = await User.findByIdAndUpdate(
-          req.body.userId, // use the ID to find the user
-          { avatar: req.body.newAvatar }, // set the new avatar
-          { new: true, runValidators: true } // options
+          req.body.userId,
+          { avatar: req.body.newAvatar },
+          { new: true, runValidators: true }
         );
 
         if (!user) {
@@ -27,13 +26,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const mongoError = error as MongooseError;
   
         if (mongoError instanceof mongoose.Error.ValidationError) {
-          // Extracting the first error message from the validation error
           const firstErrorKey = Object.keys(mongoError.errors)[0];
           const msg = mongoError.errors[firstErrorKey].message;
           return res.status(409).json({ error: msg });
         }
   
-        // If it's not a validation error, just return the error message
         return res.status(500).json({ error: mongoError.message });
       }
       break;

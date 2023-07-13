@@ -5,6 +5,7 @@ import { useSession } from "next-auth/react";
 import StarIcon from "@/components/icons/StarIcon";
 import GiftIcon from "@/components/icons/GiftIcon";
 import PhotoCameraIcon from "@mui/icons-material/PhotoCamera";
+import LockIcon from "@mui/icons-material/Lock";
 import Image from "next/image";
 import styles from "./AvatarWithOverlay.module.css";
 import { Dialog, DialogTitle, Box } from "@mui/material";
@@ -13,6 +14,7 @@ import { avatars } from "@/dummy/avatars";
 import { FeedbackData } from "@/dummy/feedback";
 import { styled } from "@mui/system";
 import { Session } from "next-auth";
+import axios from "axios";
 
 interface CustomUser extends Session {
   user: {
@@ -23,6 +25,7 @@ interface CustomUser extends Session {
     rating?: number;
     tier?: number;
     avatar?: number;
+    updateTier?: (newTier: number) => void;
   };
 }
 
@@ -35,29 +38,31 @@ export default function Layout({ children }: LayoutProps) {
     required: true,
   }) as { data: CustomUser | null; update: any };
   const [selectedAvatar, setSelectedAvatar] = useState<number | undefined>();
-  const [cardCount, setCardCount] = useState(0);
+  const [open, setOpen] = useState(false);
+  const [open2, setOpen2] = useState(false);
+  const [tierColor, setTierColor] = useState("#000000");
 
   useEffect(() => {
-    const fetchUserCards = async () => {
-      try {
-        const res = await fetch(
-          `/api/getData/getTotalStory?userId=${session?.user?.id}`
-        );
-        const data = await res.json();
-        setCardCount(data.cardCount);
-      } catch (err) {
-        console.error(err);
+    if (session && session.user) {
+      const newTier = getTierFromPoints(session.user.points ?? 0);
+
+      switch (newTier) {
+        case 1:
+          setTierColor("#AF9500");
+          break;
+        case 2:
+          setTierColor("#9E9E9E");
+          break;
+        case 3:
+          setTierColor("#6A3805");
+          break;
+        default:
+          setTierColor("#000000");
+          break;
       }
-    };
-
-    if (session?.user?.id) {
-      fetchUserCards();
+      updateTier(newTier);
     }
-  }, [session]);
-
-  useEffect(() => {
-    setSelectedAvatar(session?.user?.avatar);
-  }, [session]);
+  }, [session?.user?.points]);
 
   let totalRating = 0;
 
@@ -65,7 +70,34 @@ export default function Layout({ children }: LayoutProps) {
     totalRating += data.rating;
   });
 
-  const [open, setOpen] = useState(false);
+  const getTierFromPoints = (points: number) => {
+    if (points >= 1000) return 1;
+    if (points >= 500) return 2;
+    if (points >= 250) return 3;
+    return 0;
+  };
+
+  const updateTier = async (newTier: number) => {
+    console.log(getTierFromPoints(session?.user.points ?? 0));
+    try {
+      const response = await axios.put("/api/editProfile/update-tier", {
+        userId: session?.user?.id,
+        newTier: newTier,
+      });
+      const updatedUser = response.data.data;
+
+      await update({
+        ...session,
+        user: {
+          ...session?.user,
+          token: "dddd",
+          tier: updatedUser.tier,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
 
   const handleOpen = () => {
     setOpen(true);
@@ -73,6 +105,14 @@ export default function Layout({ children }: LayoutProps) {
 
   const handleClose = () => {
     setOpen(false);
+  };
+
+  const handleOpen2 = () => {
+    setOpen2(true);
+  };
+
+  const handleClose2 = () => {
+    setOpen2(false);
   };
 
   const CustomDialog = styled(Dialog)(({ theme }) => ({
@@ -83,6 +123,39 @@ export default function Layout({ children }: LayoutProps) {
       padding: "20px",
     },
   }));
+
+  const CustomDialog2 = styled(Dialog)(({ theme }) => ({
+    "& .MuiDialog-paper": {
+      width: "100%",
+      maxWidth: 650,
+      height: "35%",
+      padding: "20px",
+    },
+  }));
+
+  const maxPoints = 1000;
+  let currentPoints = session?.user.points ?? 0;
+
+  let percentage = Math.floor((currentPoints / maxPoints) * 100);
+
+  const prizes = [
+    {
+      label: "The Psychology (E-Book)",
+      pointsRequired: 1000,
+      downloadLink: "/api/prizes/getPrize3",
+    },
+    {
+      label: "The Mental Health (E-Book)",
+      pointsRequired: 500,
+      downloadLink: "/api/prizes/getPrize2",
+    },
+    {
+      label: "The Alchemist (E-Book)",
+      pointsRequired: 250,
+      downloadLink: "/api/prizes/getPrize1",
+    },
+  ];
+
   const averageRating = (totalRating / FeedbackData.length).toFixed(1);
   return (
     <section className="flex flex-col min-w-0">
@@ -105,10 +178,10 @@ export default function Layout({ children }: LayoutProps) {
           </div>
           <CustomDialog
             onClose={handleClose}
-            aria-labelledby="customized-dialog-title"
+            aria-labelledby="avatar-changer"
             open={open}
           >
-            <DialogTitle id="customized-dialog-title" className="text-center">
+            <DialogTitle id="avatar-changer" className="text-center">
               <div className="text-xl font-bold">
                 Choose Your Avatar Profile
               </div>
@@ -138,12 +211,76 @@ export default function Layout({ children }: LayoutProps) {
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-center justify-right pr-12">
-          <GiftIcon size={80} color={"#85878A"} />
-          <div className="-mt-[10px] text-[#85878A]">
-            Tier {session?.user?.tier}
+        <div className="flex">
+          <div
+            onClick={handleOpen2}
+            className="flex flex-col items-center justify-right pr-12 cursor-pointer"
+          >
+            <GiftIcon size={80} color={tierColor} />
+            <div className={`-mt-[10px] text-[${tierColor}]`}>
+              Tier {session?.user?.tier}
+            </div>
           </div>
         </div>
+        <CustomDialog2
+          onClose={handleClose2}
+          aria-labelledby="points-prize"
+          open={open2}
+        >
+          <DialogTitle id="points-prize" className="text-center">
+            <div className="text-xl font-bold">Download your prize now!</div>
+          </DialogTitle>
+          <Box sx={{ bgcolor: "background.paper", borderRadius: 2, p: 2 }}>
+            <div className="flex justify-between">
+              <div className="flex flex-col space-y-4 text-white font-bold">
+                {prizes.map((prize, index) => {
+                  const isUnlocked = currentPoints >= prize.pointsRequired;
+                  return (
+                    <a
+                      key={index}
+                      href={isUnlocked ? prize.downloadLink : "#"}
+                      download={isUnlocked}
+                      onClick={
+                        isUnlocked ? () => {} : (e) => e.preventDefault()
+                      }
+                    >
+                      <div
+                        key={index}
+                        className={`cursor-pointer relative rounded-xl p-3 text-xl text-center ${
+                          isUnlocked ? "bg-[#0D90FF]" : "bg-black bg-opacity-50"
+                        }`}
+                      >
+                        {isUnlocked ? (
+                          prize.label
+                        ) : (
+                          <>
+                            <LockIcon className="absolute left-2 top-1/2 transform -translate-y-1/2 text-white" />
+                            <span className="pl-6">
+                              You need {prize.pointsRequired} points to unlock
+                              this
+                            </span>
+                          </>
+                        )}
+                      </div>
+                    </a>
+                  );
+                })}
+              </div>
+              <div className="pr-6 flex flex-col text-center items-center space-y-4">
+                <div className="w-6 h-full bg-gray-300 rounded-xl relative overflow-hidden">
+                  <div
+                    className="h-full bg-[#3817E2] rounded-xl absolute bottom-0 transition-all duration-500 ease-in-out"
+                    style={{ width: "100%", height: `${percentage}%` }}
+                  ></div>
+                </div>
+                <div className="flex">
+                  <PointsIcon size={15} color="#0D90FF" />
+                  <p className="pl-1 text-[#0D90FF]">{currentPoints} Point</p>
+                </div>
+              </div>
+            </div>
+          </Box>
+        </CustomDialog2>
       </div>
       <hr className="ml-3 mr-3 border border-[1px] " />
       {children}
