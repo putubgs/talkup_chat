@@ -40,7 +40,7 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       }
       const userDoc = await User.create({
         username,
-        email,
+        email, 
         password,
         points,
         rating,

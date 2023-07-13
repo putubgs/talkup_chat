@@ -16,8 +16,9 @@ import { signOut } from "next-auth/react";
 const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
   const { data: session } = useSession();
-  const isProfilePage = usePathname() === "/profile";
-  const isAddingStoryPage = usePathname() === "/adding_story";
+  const pathname = usePathname();
+  const isProfilePage = pathname ? pathname.startsWith("/profile") : false;
+  const isAddingStoryPage = pathname === "/adding_story";
 
   return (
     <section className="flex min-w-0">

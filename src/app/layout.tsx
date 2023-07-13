@@ -9,10 +9,10 @@ const poppins = Poppins({ subsets: ["latin"], weight: "400" });
 
 export default function RootLayout({
   children,
-  session, // This should be passed to RootLayout from _app.js
+  session,
 }: {
   children: React.ReactNode;
-  session: any; // Adjust to your session's type
+  session: any;
 }) {
   const isLoginPage = usePathname() === "/login";
   const isRegisterPage = usePathname() === "/register";
