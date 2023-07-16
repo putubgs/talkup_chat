@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import FilterIcon from "@/components/icons/FilterIcon";
 import SearchIcon from "@/components/icons/SearchIcon";
-import StoryCard from "@/components/StoryCard";
+import StoryCard from "@/components/card/StoryCard";
 import ArrowLeftIcon from "@/components/icons/ArrowLeft";
 import { cardData } from "@/dummy/stories";
 import Link from "next/link";

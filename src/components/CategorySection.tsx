@@ -1,7 +1,7 @@
 import React, { FC } from "react";
 import { cardData } from "@/dummy/stories";
 import ArrowIcon from "@/components/icons/ArrowIcon";
-import StoryCard from "@/components/StoryCard";
+import StoryCard from "@/components/card/StoryCard";
 import Link from "next/link";
 
 const CategorySection: React.FC<{ category: string; searchQuery: string }> = ({

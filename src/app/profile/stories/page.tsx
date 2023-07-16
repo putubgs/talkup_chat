@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import ArrowLeftIcon from "@/components/icons/ArrowLeft";
-import StoryCard from "@/components/StoryCard";
+import StoryCard from "@/components/card/StoryCard";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
 import { Toast } from "@/components/Toast";
@@ -37,7 +37,7 @@ const ProfileStory: React.FC = () => {
       console.error("Failed to fetch stories", error);
     }
   };
-  
+
   useEffect(() => {
     fetchData();
   }, []);

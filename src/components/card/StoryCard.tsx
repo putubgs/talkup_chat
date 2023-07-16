@@ -1,7 +1,7 @@
 "use client";
 import React, { FC, useState } from "react";
 import ArrowIcon from "@/components/icons/ArrowIcon";
-import HighlightedText from "./HighlightedText";
+import HighlightedText from "../HighlightedText";
 import { usePathname } from "next/navigation";
 import { Dialog, DialogTitle, Box } from "@mui/material";
 import { styled } from "@mui/system";
@@ -9,8 +9,9 @@ import Image from "next/image";
 import { avatars } from "@/dummy/avatars";
 import { formatDistanceToNow } from "date-fns";
 import DeleteIcon from "@mui/icons-material/DeleteOutline";
-import { Toast } from "./Toast";
-import MsgIcon from "./icons/MsgIcon";
+import { Toast } from "../Toast";
+import MsgIcon from "../icons/MsgIcon";
+import SchedulePicker from "./SchedulePicker";
 
 interface StoryCardProps {
   id: string;
@@ -96,6 +97,10 @@ const StoryCard: FC<StoryCardProps> = ({
       handleClose();
     }
   }
+
+  const handleSelectedSchedule = (schedule: Schedule) => {
+    console.log(schedule);
+  };
 
   const CustomDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
@@ -202,49 +207,12 @@ const StoryCard: FC<StoryCardProps> = ({
               </div>
               <div className="text-xs">{timeAgo}</div>
             </div>
-            {isProfile
-              ? storyType == "Scheduled" && (
-                  <div>
-                    <hr />
-                    <div className="text-xs py-3 space-y-2">
-                      <div className="text-[13px]">Schedule:</div>
-                      {schedules.map((schedule, index) => (
-                        <div
-                          key={index}
-                          className="border border-1 p-2 rounded-xl border-[#0D90FF] text-[#0D90FF] text-center"
-                        >
-                          {schedule.time}, {schedule.date}
-                        </div>
-                      ))}
-                    </div>
-                    <hr />
-                  </div>
-                )
-              : storyType === "Scheduled" && (
-                  <div>
-                    <hr />
-                    <div className="text-xs py-3 space-y-2">
-                      <div className="text-[13px]">Schedule:</div>
-                      {schedules.map((schedule, index) => (
-                        <div
-                          key={index}
-                          onClick={() => {
-                            setSelectedSchedule(schedule);
-                            console.log(schedule);
-                          }}
-                          className={`border border-1 p-2 rounded-xl cursor-pointer ${
-                            selectedSchedule === schedule
-                              ? "bg-[#0D90FF] text-white"
-                              : "border-[#0D90FF] text-[#0D90FF]"
-                          } text-center`}
-                        >
-                          {schedule.time}, {schedule.date}
-                        </div>
-                      ))}
-                    </div>
-                    <hr />
-                  </div>
-                )}
+            <SchedulePicker
+              schedules={schedules}
+              storyType={storyType}
+              isProfile={isProfile}
+              onSelectedScheduleChange={handleSelectedSchedule}
+            />
           </div>
           {isProfile ? (
             <div className="flex justify-center">
@@ -262,7 +230,7 @@ const StoryCard: FC<StoryCardProps> = ({
                 className="flex items-center w-[150px] p-2 border bg-[#A1E4D8] border-[#008767] text-[#008767] rounded-xl text-center mt-6 cursor-pointer items-center justify-center space-x-2"
                 onClick={() => handleDelete(id)}
               >
-                <MsgIcon size={15} color="#008767"/>
+                <MsgIcon size={15} color="#008767" />
                 <div>Lets Chat!</div>
               </div>
             </div>

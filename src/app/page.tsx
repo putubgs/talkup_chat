@@ -5,10 +5,9 @@ import FilterIcon from "@/components/icons/FilterIcon";
 import SearchIcon from "@/components/icons/SearchIcon";
 import ArrowIcon from "@/components/icons/ArrowIcon";
 import CircleIcon from "@/components/icons/CircleIcon";
-import StoryCard from "@/components/StoryCard";
+import StoryCard from "@/components/card/StoryCard";
 import CategorySection from "@/components/CategorySection";
 import { cardData } from "@/dummy/stories";
-
 
 const Home: React.FC = () => {
   const [activeIndex, setActiveIndex] = useState(0);
