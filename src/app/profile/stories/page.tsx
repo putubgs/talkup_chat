@@ -19,7 +19,7 @@ interface CustomUser extends Session {
   };
 }
 
-const profileStory: React.FC = () => {
+const ProfileStory: React.FC = () => {
   let { data: session } = useSession({
     required: true,
   }) as { data: CustomUser | null };
@@ -95,4 +95,4 @@ const profileStory: React.FC = () => {
   );
 };
 
-export default profileStory;
+export default ProfileStory;

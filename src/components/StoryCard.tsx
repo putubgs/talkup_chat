@@ -10,6 +10,7 @@ import { avatars } from "@/dummy/avatars";
 import { formatDistanceToNow } from "date-fns";
 import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import { Toast } from "./Toast";
+import MsgIcon from "./icons/MsgIcon";
 
 interface StoryCardProps {
   id: string;
@@ -23,7 +24,7 @@ interface StoryCardProps {
   username: string | undefined;
   avatar: number | undefined;
   createdAt: Date;
-  refetch: () => Promise<void>
+  refetch: () => Promise<void>;
   setToastMessage: (toastMsg: string) => void;
   setToastVisible: (toast: boolean) => void;
   setError: (error: boolean) => void;
@@ -58,16 +59,18 @@ const StoryCard: FC<StoryCardProps> = ({
   refetch,
   setToastMessage,
   setToastVisible,
-  setError
+  setError,
 }) => {
   const cardColor = categoryColors[category as keyof typeof categoryColors];
-  const isProfile = usePathname()
-    ? usePathname()?.startsWith("/profile")
-    : false;
+  const pathname = usePathname();
+  const isProfile = pathname ? pathname.startsWith("/profile") : false;
   const textColor = category === "Spirituality" ? "black" : "white";
   const circleColor =
     category === "Finance" ? "rgba(28,28,28,0.2)" : "rgba(59,130,246,0.2)";
   const [open, setOpen] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
+    null
+  );
   const date = new Date(createdAt);
   const timeAgo = formatDistanceToNow(new Date(date), {
     addSuffix: true,
@@ -83,18 +86,16 @@ const StoryCard: FC<StoryCardProps> = ({
       if (!res.ok) throw new Error("Error deleting story");
       setToastMessage("Successfully deleted the story!");
       setToastVisible(true);
-      handleClose()
+      handleClose();
       refetch();
     } catch (err: any) {
       console.error(err);
       setToastMessage(err);
       setToastVisible(true);
       setError(true);
-      handleClose()
+      handleClose();
     }
   }
-  
-  
 
   const CustomDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
@@ -118,7 +119,6 @@ const StoryCard: FC<StoryCardProps> = ({
       className="relative rounded-lg shadow-lg overflow-hidden w-80 h-60 p-4 flex-shrink-0"
       style={{ backgroundColor: cardColor }}
     >
-
       <div className="absolute bottom-0 right-0 flex justify-end items-end">
         <div
           className="rounded-full w-24 h-24 -mr-[140px] mb-4"
@@ -202,23 +202,71 @@ const StoryCard: FC<StoryCardProps> = ({
               </div>
               <div className="text-xs">{timeAgo}</div>
             </div>
-            {storyType == "Scheduled" && (
-              <div>
-                <hr />
-                <div className="text-xs">Category: {category}</div>
-                <hr />
+            {isProfile
+              ? storyType == "Scheduled" && (
+                  <div>
+                    <hr />
+                    <div className="text-xs py-3 space-y-2">
+                      <div className="text-[13px]">Schedule:</div>
+                      {schedules.map((schedule, index) => (
+                        <div
+                          key={index}
+                          className="border border-1 p-2 rounded-xl border-[#0D90FF] text-[#0D90FF] text-center"
+                        >
+                          {schedule.time}, {schedule.date}
+                        </div>
+                      ))}
+                    </div>
+                    <hr />
+                  </div>
+                )
+              : storyType === "Scheduled" && (
+                  <div>
+                    <hr />
+                    <div className="text-xs py-3 space-y-2">
+                      <div className="text-[13px]">Schedule:</div>
+                      {schedules.map((schedule, index) => (
+                        <div
+                          key={index}
+                          onClick={() => {
+                            setSelectedSchedule(schedule);
+                            console.log(schedule);
+                          }}
+                          className={`border border-1 p-2 rounded-xl cursor-pointer ${
+                            selectedSchedule === schedule
+                              ? "bg-[#0D90FF] text-white"
+                              : "border-[#0D90FF] text-[#0D90FF]"
+                          } text-center`}
+                        >
+                          {schedule.time}, {schedule.date}
+                        </div>
+                      ))}
+                    </div>
+                    <hr />
+                  </div>
+                )}
+          </div>
+          {isProfile ? (
+            <div className="flex justify-center">
+              <div
+                className="flex items-center w-[100px] p-2 border bg-[#FFB0B0] border-[#E41A1A] text-[#E41A1A] rounded-xl text-center mt-6 cursor-pointer"
+                onClick={() => handleDelete(id)}
+              >
+                <DeleteIcon />
+                <div>Delete</div>
               </div>
-            )}
-          </div>
-          <div className="flex justify-center">
-            <div
-              className="flex items-center w-[100px] p-2 border bg-[#FFB0B0] border-[#E41A1A] text-[#E41A1A] rounded-xl text-center mt-10 cursor-pointer"
-              onClick={() => handleDelete(id)}
-            >
-              <DeleteIcon />
-              <div>Delete</div>
             </div>
-          </div>
+          ) : (
+            <div className="flex justify-center">
+              <div
+                className="flex items-center w-[150px] p-2 border bg-[#A1E4D8] border-[#008767] text-[#008767] rounded-xl text-center mt-6 cursor-pointer items-center justify-center space-x-2"
+                onClick={() => handleDelete(id)}
+              >
+                <MsgIcon size={15} color="#008767"/>
+                <div>Lets Chat!</div>
+              </div>
+            </div>
+          )}
         </Box>
       </CustomDialog>
     </div>
