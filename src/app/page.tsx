@@ -7,12 +7,33 @@ import ArrowIcon from "@/components/icons/ArrowIcon";
 import CircleIcon from "@/components/icons/CircleIcon";
 import StoryCard from "@/components/card/StoryCard";
 import CategorySection from "@/components/CategorySection";
-import { cardData } from "@/dummy/stories";
+// import { cardData } from "@/dummy/stories";
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import { Toast } from "@/components/Toast";
+
+interface CustomUser extends Session {
+  user: {
+    id?: string;
+    name?: string | null;
+    username?: string;
+    points?: number;
+    rating?: number;
+    tier?: number;
+    avatar?: number;
+  };
+}
 
 const Home: React.FC = () => {
+  let { data: session } = useSession() as { data: CustomUser | null };
   const [activeIndex, setActiveIndex] = useState(0);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [cardData, setCardData] = useState<any[] | null>(null);
+  const [userData, setUserData] = useState<any[] | null>(null);
+  const [toastMessage, setToastMessage] = useState("");
+  const [toastVisible, setToastVisible] = useState(false);
+  const [errorStatus, setError] = useState(false);
 
   useEffect(() => {
     const currentRef = cardRef.current;
@@ -30,6 +51,39 @@ const Home: React.FC = () => {
         currentRef.removeEventListener("scroll", handleScroll);
       };
     }
+  }, []);
+
+  const fetchCard = async () => {
+    try {
+      const res = await fetch("/api/getData/getProfileStory");
+      const data = await res.json();
+      console.log(data.stories);
+      setCardData(data.stories);
+    } catch (error) {
+      console.error("Failed to fetch stories", error);
+    }
+  };
+
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/api/getData/getUserProfile");
+      const data = await res.json();
+      console.log(data.users);
+      setUserData(data.users);
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+    }
+  };
+
+  const getUserData = (userId: string) => {
+    return userData?.find((user) => user._id === userId);
+  };
+
+  const activeCardData = cardData?.filter((card) => card.activation === true);
+
+  useEffect(() => {
+    fetchCard();
+    fetchUser();
   }, []);
 
   const handleClickIndicator = (index: number) => {
@@ -74,26 +128,43 @@ const Home: React.FC = () => {
             ref={cardRef as React.RefObject<HTMLDivElement>}
             className="flex space-x-12 hide-scrollbar min-w-0"
           >
-            {cardData.slice(0, 6).map((card, index) => (
-              <div
-                className={
-                  index === activeIndex ? "active-card" : "inactive-card"
-                }
-                key={card.id}
-              >
-                <StoryCard
-                  id={card.id}
-                  story={card.story}
-                  category={card.category}
-                  searchQuery={""}
-                />
-              </div>
-            ))}
+            {activeCardData
+              ?.sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .slice(0, 6)
+              .map((card, index) => {
+                const user = getUserData(card.userId);
+
+                return (
+                  <div key={index}>
+                    <StoryCard
+                      id={card._id}
+                      story={card.story}
+                      category={card.category}
+                      searchQuery={searchQuery}
+                      storyType={card.storyType}
+                      schedules={card.schedules}
+                      userId={card.userId}
+                      activation={card.activation}
+                      username={user?.username}
+                      avatar={user?.avatar}
+                      createdAt={card.createdAt}
+                      refetch={fetchCard}
+                      setToastMessage={setToastMessage}
+                      setToastVisible={setToastVisible}
+                      setError={setError}
+                    />
+                  </div>
+                );
+              })}
           </div>
 
           <div className="flex justify-center space-x-3 pt-12">
-            {cardData.slice(0, 6).map((card, index) => (
-              <div key={card.id} onClick={() => handleClickIndicator(index)}>
+            {activeCardData?.slice(0, 3).map((card, index) => (
+              <div key={index} onClick={() => handleClickIndicator(index)}>
                 <CircleIcon
                   size={10}
                   color={index === activeIndex ? "black" : "gray"}
@@ -102,7 +173,7 @@ const Home: React.FC = () => {
             ))}
           </div>
         </div>
-        <CategorySection
+        {/* <CategorySection
           category="Social Connection"
           searchQuery={searchQuery}
         />
@@ -110,7 +181,7 @@ const Home: React.FC = () => {
         <CategorySection category="Family" searchQuery={searchQuery} />
         <CategorySection category="Health" searchQuery={searchQuery} />
         <CategorySection category="Spirituality" searchQuery={searchQuery} />
-        <CategorySection category="Finance" searchQuery={searchQuery} />
+        <CategorySection category="Finance" searchQuery={searchQuery} /> */}
       </div>
     </section>
   );

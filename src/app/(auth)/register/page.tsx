@@ -16,6 +16,7 @@ const Register: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
+  const [errorStatus, setError] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [buttonClass, setButtonClass] = useState(
     "bg-gray-400 text-gray-600 font-bold p-3 rounded-full w-full"
@@ -46,6 +47,8 @@ const Register: React.FC = () => {
   };
 
   const handleSubmit = async (event: FormEvent) => {
+    setError(false);
+    setToastVisible(false);
     event.preventDefault();
 
     const hashedPassword = await hashPassword(password);
@@ -81,8 +84,8 @@ const Register: React.FC = () => {
           setEmailInputClass("border-2 border-red-500 h-12 rounded-full p-4");
         }
         setToastMessage(error.response.data.error);
-        console.log(error.response.data.error);
         setToastVisible(true);
+        setError(true);
       }
     }
   };
@@ -178,7 +181,11 @@ const Register: React.FC = () => {
 
   return (
     <section className="flex justify-between">
-      <Toast message={toastMessage} visible={toastVisible} />
+      <Toast
+        message={toastMessage}
+        visible={toastVisible}
+        error={errorStatus}
+      />
       <div className="bg-white flex flex-col items-center justify-center h-screen flex-grow space-y-12">
         <div className="text-xl font-bold">Let&apos;s Create Account!</div>
         <form

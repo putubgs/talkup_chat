@@ -74,7 +74,6 @@ const StoryCard: FC<StoryCardProps> = ({
   );
   const date = new Date(createdAt);
   const timeAgo = formatDistanceToNow(new Date(date), {
-    addSuffix: true,
     includeSeconds: true,
   });
 
@@ -169,7 +168,7 @@ const StoryCard: FC<StoryCardProps> = ({
             <div className="flex text-xs h-6 bg-white self-end rounded items-center pl-2 pr-2">
               <p className="text-black">{category}</p>
             </div>
-            <div className="text-xl w-60">{story}</div>
+            <div className="text-xl w-60" style={{ color: textColor }}>{story}</div>
           </div>
         </Box>
         <Box
@@ -205,7 +204,7 @@ const StoryCard: FC<StoryCardProps> = ({
                 />
                 <div className="text-xs">{username}</div>
               </div>
-              <div className="text-xs">{timeAgo}</div>
+              <div className="text-xs">{timeAgo} ago</div>
             </div>
             <SchedulePicker
               schedules={schedules}
@@ -228,7 +227,7 @@ const StoryCard: FC<StoryCardProps> = ({
             <div className="flex justify-center">
               <div
                 className="flex items-center w-[150px] p-2 border bg-[#A1E4D8] border-[#008767] text-[#008767] rounded-xl text-center mt-6 cursor-pointer items-center justify-center space-x-2"
-                onClick={() => handleDelete(id)}
+                // onClick={() => handleDelete(id)}
               >
                 <MsgIcon size={15} color="#008767" />
                 <div>Lets Chat!</div>

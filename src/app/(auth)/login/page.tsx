@@ -31,6 +31,7 @@ const Login: React.FC = () => {
   };
 
   const handleSubmit = async (event: FormEvent) => {
+    setError(false);
     setToastVisible(false);
     event.preventDefault();
     try {
