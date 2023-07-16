@@ -6,7 +6,7 @@ import StoryCard from "@/components/card/StoryCard";
 import ArrowLeftIcon from "@/components/icons/ArrowLeft";
 import Link from "next/link";
 
-const Spirituality: React.FC = () => {
+const Direct: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [cardData, setCardData] = useState<any[] | null>(null);
   const [userData, setUserData] = useState<any[] | null>(null);
@@ -44,7 +44,7 @@ const Spirituality: React.FC = () => {
 
   const filteredCards = cardData?.filter(
     (card) =>
-      card.category === "Spirituality" &&
+      card.storyType === "Direct" &&
       card.story.toLowerCase().includes(searchQuery.toLowerCase()) &&
       card.activation === true
   );
@@ -88,7 +88,7 @@ const Spirituality: React.FC = () => {
               <button className="text-white text-[14px]">Back</button>
             </Link>
             <div className="flex items-center pb-6">
-              <p className="text-2xl font-bold pr-[80px]">Social Connection</p>
+              <p className="text-2xl font-bold pr-[80px]">Direct Story</p>
             </div>
           </div>
 
@@ -131,4 +131,4 @@ const Spirituality: React.FC = () => {
   );
 };
 
-export default Spirituality;
+export default Direct;

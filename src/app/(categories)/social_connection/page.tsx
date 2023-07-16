@@ -1,19 +1,52 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import FilterIcon from "@/components/icons/FilterIcon";
 import SearchIcon from "@/components/icons/SearchIcon";
 import StoryCard from "@/components/card/StoryCard";
 import ArrowLeftIcon from "@/components/icons/ArrowLeft";
-import { cardData } from "@/dummy/stories";
 import Link from "next/link";
 
 const SocialConnection: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [cardData, setCardData] = useState<any[] | null>(null);
+  const [userData, setUserData] = useState<any[] | null>(null);
 
-  const filteredCards = cardData.filter(
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/api/getData/getUserProfile");
+      const data = await res.json();
+      console.log(data.users);
+      setUserData(data.users);
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+    }
+  };
+
+  const fetchCard = async () => {
+    try {
+      const res = await fetch("/api/getData/getProfileStory");
+      const data = await res.json();
+      console.log(data.stories);
+      setCardData(data.stories);
+    } catch (error) {
+      console.error("Failed to fetch stories", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchCard();
+    fetchUser();
+  }, []);
+
+  const getUserData = (userId: string) => {
+    return userData?.find((user) => user._id === userId);
+  };
+
+  const filteredCards = cardData?.filter(
     (card) =>
       card.category === "Social Connection" &&
-      card.story.toLowerCase().includes(searchQuery.toLowerCase())
+      card.story.toLowerCase().includes(searchQuery.toLowerCase()) &&
+      card.activation === true
   );
 
   return (
@@ -60,16 +93,37 @@ const SocialConnection: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap min-w-0">
-            {filteredCards.map((card) => (
-              <div key={card.id} className="w-full sm:w-1/2 lg:w-1/3 p-4">
-                <StoryCard
-                  id={card.id}
-                  story={card.story}
-                  category={card.category}
-                  searchQuery={searchQuery}
-                />
-              </div>
-            ))}
+            {filteredCards
+              ?.sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              )
+              .map((card, index) => {
+                const user = getUserData(card.userId);
+
+                return (
+                  <div key={index} className="w-full sm:w-1/2 lg:w-1/3 p-4">
+                    <StoryCard
+                      id={card._id}
+                      story={card.story}
+                      category={card.category}
+                      searchQuery={searchQuery}
+                      storyType={card.storyType}
+                      schedules={card.schedules}
+                      userId={card.userId}
+                      activation={card.activation}
+                      username={user?.username}
+                      avatar={user?.avatar}
+                      createdAt={card.createdAt}
+                      refetch={() => new Promise<void>(() => {})}
+                      setToastMessage={() => {}}
+                      setToastVisible={() => {}}
+                      setError={() => {}}
+                    />
+                  </div>
+                );
+              })}
           </div>
         </div>
       </div>

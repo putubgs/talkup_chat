@@ -6,10 +6,11 @@ import SearchIcon from "@/components/icons/SearchIcon";
 import ArrowIcon from "@/components/icons/ArrowIcon";
 import CircleIcon from "@/components/icons/CircleIcon";
 import StoryCard from "@/components/card/StoryCard";
-import CategorySection from "@/components/CategorySection";
+import CategorySection from "@/components/dashboard/CategorySection";
 // import { cardData } from "@/dummy/stories";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
+import DirectStory from "@/components/dashboard/DirectStory";
 import { Toast } from "@/components/Toast";
 
 interface CustomUser extends Session {
@@ -124,10 +125,7 @@ const Home: React.FC = () => {
             <p className="text-2xl font-bold">Newest</p>
           </div>
 
-          <div
-            ref={cardRef as React.RefObject<HTMLDivElement>}
-            className="flex space-x-12 hide-scrollbar min-w-0"
-          >
+          <div className="flex space-x-12 hide-scrollbar min-w-0">
             {activeCardData
               ?.sort(
                 (a, b) =>
@@ -163,7 +161,7 @@ const Home: React.FC = () => {
           </div>
 
           <div className="flex justify-center space-x-3 pt-12">
-            {activeCardData?.slice(0, 3).map((card, index) => (
+            {activeCardData?.slice(0, 6).map((card, index) => (
               <div key={index} onClick={() => handleClickIndicator(index)}>
                 <CircleIcon
                   size={10}
@@ -173,15 +171,47 @@ const Home: React.FC = () => {
             ))}
           </div>
         </div>
-        {/* <CategorySection
+        <DirectStory
+          searchQuery={searchQuery}
+          cards={activeCardData}
+          users={userData}
+        />
+        <CategorySection
           category="Social Connection"
           searchQuery={searchQuery}
+          cards={activeCardData}
+          users={userData}
         />
-        <CategorySection category="Personal Growth" searchQuery={searchQuery} />
-        <CategorySection category="Family" searchQuery={searchQuery} />
-        <CategorySection category="Health" searchQuery={searchQuery} />
-        <CategorySection category="Spirituality" searchQuery={searchQuery} />
-        <CategorySection category="Finance" searchQuery={searchQuery} /> */}
+        <CategorySection
+          category="Personal Growth"
+          searchQuery={searchQuery}
+          cards={activeCardData}
+          users={userData}
+        />
+        <CategorySection
+          category="Family"
+          searchQuery={searchQuery}
+          cards={activeCardData}
+          users={userData}
+        />
+        <CategorySection
+          category="Health"
+          searchQuery={searchQuery}
+          cards={activeCardData}
+          users={userData}
+        />
+        <CategorySection
+          category="Spirituality"
+          searchQuery={searchQuery}
+          cards={activeCardData}
+          users={userData}
+        />
+        <CategorySection
+          category="Finance"
+          searchQuery={searchQuery}
+          cards={activeCardData}
+          users={userData}
+        />
       </div>
     </section>
   );
