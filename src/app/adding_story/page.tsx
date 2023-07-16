@@ -253,32 +253,43 @@ const AddStoryPage: React.FC = () => {
         ) : (
           <>
             {storyLabel ? (
-              <div className="flex flex-col text-center text-gray-600 text-xl mb-6 font-bold">
-                <div className="text-xs">
-                  Total time: {totalTime.toFixed(2)}
+              <>
+                <div className="flex flex-col text-center text-gray-600 text-xl mb-6 font-bold">
+                  <div className="text-xs">
+                    Total time: {totalTime.toFixed(2)}
+                  </div>
+                  <div className="text-xs">Algorithm: {algorithm}</div>
+                  <div className="pt-6">Result: {serverResult}</div>
                 </div>
-                <div className="text-xs">Algorithm: {algorithm}</div>
-                <div className="pt-6">Result: {serverResult}</div>
-              </div>
+                <div className="flex space-x-4">
+                  <button
+                    className="bg-[#EE1414] p-2 pl-12 pr-12 rounded-xl text-white"
+                    onClick={handleReset}
+                  >
+                    NO!
+                  </button>
+                  <button
+                    className="bg-[#0D90FF] p-2 pl-12 pr-12 rounded-xl text-white"
+                    onClick={handleApprove}
+                  >
+                    OK!
+                  </button>
+                </div>
+              </>
             ) : (
-              <p className="text-center text-gray-600 text-xl mb-6 font-bold">
-                Please specify the problem!
-              </p>
+              <>
+                <p className="text-center text-gray-600 text-xl mb-6 font-bold">
+                  Sorry, the AI not understand your problem. <br/> Please specify it
+                  more!
+                </p>
+                <button
+                  className="bg-[#0D90FF] p-2 pl-12 pr-12 rounded-xl text-white"
+                  onClick={handleReset}
+                >
+                  OK!
+                </button>
+              </>
             )}
-            <div className="flex space-x-4">
-              <button
-                className="bg-[#EE1414] p-2 pl-12 pr-12 rounded-xl text-white"
-                onClick={handleReset}
-              >
-                NO!
-              </button>
-              <button
-                className="bg-[#0D90FF] p-2 pl-12 pr-12 rounded-xl text-white"
-                onClick={handleApprove}
-              >
-                OK!
-              </button>
-            </div>
           </>
         )}
       </div>
@@ -397,7 +408,7 @@ const AddStoryPage: React.FC = () => {
           </div>
         )}
         <div className="">
-          <label>Story</label>
+          <label>Problem Story</label>
           <input
             className="mt-2 p-2 w-full h-12 border rounded-lg"
             maxLength={100}
