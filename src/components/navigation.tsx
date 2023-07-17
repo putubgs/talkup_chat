@@ -19,6 +19,7 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const pathname = usePathname();
   const isProfilePage = pathname ? pathname.startsWith("/profile") : false;
   const isAddingStoryPage = pathname === "/adding_story";
+  const isMessage = pathname === "/message";
 
   return (
     <section className="flex min-w-0">
@@ -32,7 +33,7 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
             <>
               <div
                 className={`flex w-full p-3 rounded-xl items-center cursor-pointer ${
-                  isProfilePage || isAddingStoryPage
+                  isProfilePage || isAddingStoryPage || isMessage
                     ? "text-[#85878A]"
                     : "bg-[#DFEFFF] text-[#0D90FF]"
                 }`}
@@ -41,13 +42,21 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
                 <HomeIcon
                   size={12}
                   color={
-                    isProfilePage || isAddingStoryPage ? "#85878A" : "#0D90FF"
+                    isProfilePage || isAddingStoryPage || isMessage ? "#85878A" : "#0D90FF"
                   }
                 />
                 <p className="text-[20px] ml-3">Dashboard</p>
               </div>
-              <div className="flex w-full p-3 rounded-xl text-[#85878A] items-center cursor-pointer">
-                <MsgIcon size={12} color={"#85878A"} />
+              <div
+                className={`flex w-full p-3 rounded-xl items-center cursor-pointer ${
+                  isMessage ? "bg-[#DFEFFF] text-[#0D90FF]" : "text-[#85878A]"
+                }`}
+                onClick={() => router.push("/message")}
+              >
+                <MsgIcon
+                  size={12}
+                  color={isMessage ? "#0D90FF" : "#85878A"}
+                />
                 <p className="text-[20px] ml-3">Message</p>
               </div>
               <div
@@ -120,7 +129,9 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
           <div className="p-8 cursor-pointer">
             <div
               className="flex bg-[#DFEFFF] w-full p-3 rounded-xl text-[#0D90FF] items-center"
-              onClick={() => signOut({ callbackUrl: `${window.location.origin}/` })}
+              onClick={() =>
+                signOut({ callbackUrl: `${window.location.origin}/` })
+              }
             >
               <LogoutIcon size={12} color={"#0D90FF"} />
               <p className="text-[20px] ml-3">Logout</p>
