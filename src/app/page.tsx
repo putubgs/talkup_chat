@@ -87,10 +87,6 @@ const Home: React.FC = () => {
     fetchUser();
   }, []);
 
-  const handleClickIndicator = (index: number) => {
-    setActiveIndex(index);
-  };
-
   return (
     <section className="flex flex-col min-w-0">
       <div className="flex h-[120px] bg-[#FFFFFF] p-7 justify-between min-w-0">
@@ -125,7 +121,10 @@ const Home: React.FC = () => {
             <p className="text-2xl font-bold">Newest</p>
           </div>
 
-          <div className="flex space-x-12 hide-scrollbar min-w-0">
+          <div
+            ref={cardRef as React.RefObject<HTMLDivElement>}
+            className="flex space-x-12 hide-scrollbar min-w-0"
+          >
             {activeCardData
               ?.sort(
                 (a, b) =>
@@ -137,7 +136,12 @@ const Home: React.FC = () => {
                 const user = getUserData(card.userId);
 
                 return (
-                  <div key={index}>
+                  <div
+                    key={index}
+                    className={
+                      index === activeIndex ? "active-card" : "inactive-card"
+                    }
+                  >
                     <StoryCard
                       id={card._id}
                       story={card.story}
@@ -162,7 +166,7 @@ const Home: React.FC = () => {
 
           <div className="flex justify-center space-x-3 pt-12">
             {activeCardData?.slice(0, 6).map((card, index) => (
-              <div key={index} onClick={() => handleClickIndicator(index)}>
+              <div key={index}>
                 <CircleIcon
                   size={10}
                   color={index === activeIndex ? "black" : "gray"}
