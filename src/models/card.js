@@ -31,13 +31,13 @@ const cardSchema = new Schema(
       required: true,
     },
     listenerId: {
-        type: Schema.Types.ObjectId,
-        ref: "User",
+      type: Schema.Types.ObjectId,
+      ref: "User",
     },
     activation: {
-        type: Boolean,
-        required: true
-    }
+      type: Boolean,
+      required: true,
+    },
   },
   {
     timestamps: true,
