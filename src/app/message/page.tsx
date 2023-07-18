@@ -119,12 +119,12 @@ const Message: React.FC = () => {
                 <div className="flex flex-col pt-2 space-y-4">
                   <div className="text-[13px]">
                     Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
+                    today. she is really pretty. ill like to talk more about it
                     but it has to be tomorrow. she should grab a drink later.
                   </div>
                   <div className="text-[13px]">
                     Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
+                    today. she is  really pretty. ill like to talk more about it
                     but it has to be tomorrow. she should grab a drink later.
                   </div>
                 </div>
@@ -147,12 +147,12 @@ const Message: React.FC = () => {
                 <div className="flex flex-col pt-2 space-y-4">
                   <div className="text-[13px]">
                     Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
+                    today. she is  really pretty. ill like to talk more about it
                     but it has to be tomorrow. she should grab a drink later.
                   </div>
                   <div className="text-[13px]">
                     Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
+                    today. she is  really pretty. ill like to talk more about it
                     but it has to be tomorrow. she should grab a drink later.
                   </div>
                 </div>
@@ -175,49 +175,22 @@ const Message: React.FC = () => {
                 <div className="flex flex-col pt-2 space-y-4">
                   <div className="text-[13px]">
                     Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
+                    today. she is  really pretty. ill like to talk more about it
                     but it has to be tomorrow. she should grab a drink later.
                   </div>
                   <div className="text-[13px]">
                     Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
+                    today. she is  really pretty. ill like to talk more about it
                     but it has to be tomorrow. she should grab a drink later.
                   </div>
                   <div className="text-[13px]">
                     Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
+                    today. she is  really pretty. ill like to talk more about it
                     but it has to be tomorrow. she should grab a drink later.
                   </div>
                   <div className="text-[13px]">
                     Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
-                    but it has to be tomorrow. she should grab a drink later.
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="flex space-x-6">
-              <Image
-                src={avatars[3]}
-                width={65}
-                height={65}
-                alt="avatar"
-                className="h-fit"
-              />
-              <div className="flex flex-col">
-                <div className="flex space-x-4 items-center">
-                  <div className="font-bold">Anonymous#12344</div>
-                  <div className="text-xs">4:27 PM</div>
-                </div>
-                <div className="flex flex-col pt-2 space-y-4">
-                  <div className="text-[13px]">
-                    Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
-                    but it has to be tomorrow. she should grab a drink later.
-                  </div>
-                  <div className="text-[13px]">
-                    Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
+                    today. she is  really pretty. ill like to talk more about it
                     but it has to be tomorrow. she should grab a drink later.
                   </div>
                 </div>
@@ -239,12 +212,39 @@ const Message: React.FC = () => {
                 <div className="flex flex-col pt-2 space-y-4">
                   <div className="text-[13px]">
                     Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
+                    today. she is  really pretty. ill like to talk more about it
                     but it has to be tomorrow. she should grab a drink later.
                   </div>
                   <div className="text-[13px]">
                     Gee, its been good news all day. i met someone special
-                    today. she's really pretty. i’ll like to talk more about it
+                    today. she is really pretty. ill like to talk more about it
+                    but it has to be tomorrow. she should grab a drink later.
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex space-x-6">
+              <Image
+                src={avatars[3]}
+                width={65}
+                height={65}
+                alt="avatar"
+                className="h-fit"
+              />
+              <div className="flex flex-col">
+                <div className="flex space-x-4 items-center">
+                  <div className="font-bold">Anonymous#12344</div>
+                  <div className="text-xs">4:27 PM</div>
+                </div>
+                <div className="flex flex-col pt-2 space-y-4">
+                  <div className="text-[13px]">
+                    Gee, its been good news all day. i met someone special
+                    today. she is  really pretty. ill like to talk more about it
+                    but it has to be tomorrow. she should grab a drink later.
+                  </div>
+                  <div className="text-[13px]">
+                    Gee, its been good news all day. i met someone special
+                    today. she is  really pretty. ill like to talk more about it
                     but it has to be tomorrow. she should grab a drink later.
                   </div>
                 </div>

@@ -15,7 +15,6 @@ const notificationSchema = new Schema(
     approval: {
       type: String,
       default: "",
-      required: true,
     },
   },
   {
@@ -24,6 +23,6 @@ const notificationSchema = new Schema(
 );
 
 const Notification =
-  models.notification || model("Notification", notificationSchema);
+  models.Notification || model("Notification", notificationSchema);
 
 export default Notification;

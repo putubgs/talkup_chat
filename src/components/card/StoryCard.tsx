@@ -12,6 +12,9 @@ import DeleteIcon from "@mui/icons-material/DeleteOutline";
 import { Toast } from "../Toast";
 import MsgIcon from "../icons/MsgIcon";
 import SchedulePicker from "./SchedulePicker";
+import { useSession } from "next-auth/react";
+import { Session } from "next-auth";
+import axios from "axios";
 
 interface StoryCardProps {
   id: string;
@@ -35,6 +38,19 @@ type Schedule = {
   date: string;
   time: string;
 };
+
+interface CustomUser extends Session {
+  user: {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    username?: string;
+    points?: number;
+    rating?: number;
+    tier?: number;
+    avatar?: number;
+  };
+}
 
 const categoryColors = {
   "Social Connection": "#EA6E9A",
@@ -62,6 +78,7 @@ const StoryCard: FC<StoryCardProps> = ({
   setToastVisible,
   setError,
 }) => {
+  let { data: session } = useSession() as { data: CustomUser | null; update: any };
   const cardColor = categoryColors[category as keyof typeof categoryColors];
   const pathname = usePathname();
   const isProfile = pathname ? pathname.startsWith("/profile") : false;
@@ -94,6 +111,33 @@ const StoryCard: FC<StoryCardProps> = ({
       setToastVisible(true);
       setError(true);
       handleClose();
+    }
+  }
+
+  const handleRequest = async () => {
+    console.log(session?.user?.id)
+    if(session?.user?.id == userId){
+      handleClose();
+      return console.log("you can't request on your own story");
+    }
+    const requestData = {
+      cardId: id,
+      requesterId: session?.user?.id,
+    }
+
+    console.log(requestData)
+
+    try {
+      await axios.post(
+        "http://localhost:3000/api/dataUpload/addNotification",
+        requestData
+      );
+      handleClose();
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.log(error.response.data.error);
+        handleClose();
+      }
     }
   }
 
@@ -227,7 +271,7 @@ const StoryCard: FC<StoryCardProps> = ({
             <div className="flex justify-center">
               <div
                 className="flex items-center w-[150px] p-2 border bg-[#A1E4D8] border-[#008767] text-[#008767] rounded-xl text-center mt-6 cursor-pointer items-center justify-center space-x-2"
-                // onClick={() => handleDelete(id)}
+                onClick={handleRequest}
               >
                 <MsgIcon size={15} color="#008767" />
                 <div>Lets Chat!</div>
