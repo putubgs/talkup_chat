@@ -86,7 +86,7 @@ const StoryCard: FC<StoryCardProps> = ({
   const circleColor =
     category === "Finance" ? "rgba(28,28,28,0.2)" : "rgba(59,130,246,0.2)";
   const [open, setOpen] = useState(false);
-  const [selectedSchedule, setSelectedSchedule] = useState<Schedule | null>(
+  const [schedule, setSelectedSchedule] = useState<Schedule | null>(
     null
   );
   const date = new Date(createdAt);
@@ -120,9 +120,11 @@ const StoryCard: FC<StoryCardProps> = ({
       handleClose();
       return console.log("you can't request on your own story");
     }
+    console.log(schedule)
     const requestData = {
       cardId: id,
       requesterId: session?.user?.id,
+      schedule: schedule
     }
 
     console.log(requestData)
@@ -143,6 +145,7 @@ const StoryCard: FC<StoryCardProps> = ({
 
   const handleSelectedSchedule = (schedule: Schedule) => {
     console.log(schedule);
+    setSelectedSchedule(schedule)
   };
 
   const CustomDialog = styled(Dialog)(({ theme }) => ({

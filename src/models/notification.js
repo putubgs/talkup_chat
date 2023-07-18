@@ -6,11 +6,19 @@ const notificationSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Card",
       required: true,
+      unique: true 
     },
     requesterId: {
       type: Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+    schedule: {
+      type: new Schema({
+        date: { type: String, required: true },
+        time: { type: String, required: true },
+      }),
+      default: null,
     },
     approval: {
       type: String,

@@ -14,16 +14,18 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     if (!req.body) return res.status(400).json({ error: "Data is missing" });
 
-    const {
-        cardId,
-        requesterId,
-    } = req.body;
+    const { cardId, requesterId, schedule } = req.body;
 
     try {
+      const existingNotification = await Notification.findOne({ cardId });
+      if (existingNotification) {
+        return res.status(400).json({ error: "cardId already exists" });
+      }
 
       const notificationDoc = await Notification.create({
         cardId,
         requesterId,
+        schedule,
       });
 
       const notification = notificationDoc.toObject();
