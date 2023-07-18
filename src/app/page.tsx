@@ -120,7 +120,7 @@ const Home: React.FC = () => {
             <div className="bg-[#F4F4F4] rounded-md p-2 cursor-pointer" onClick={handleOpen}>
               <Notifications fontSize="medium" style={{color: "black"}} />
             </div>
-            <Notification open={open} handleClose={handleClose}/>
+            <Notification open={open} handleClose={handleClose} users={userData}/>
           </div>
         </div>
       </div>

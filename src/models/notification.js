@@ -6,7 +6,6 @@ const notificationSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: "Card",
       required: true,
-      unique: true 
     },
     requesterId: {
       type: Schema.Types.ObjectId,
@@ -29,6 +28,8 @@ const notificationSchema = new Schema(
     timestamps: true,
   }
 );
+
+notificationSchema.index({ cardId: 1, requesterId: 1 }, { unique: true });
 
 const Notification =
   models.Notification || model("Notification", notificationSchema);

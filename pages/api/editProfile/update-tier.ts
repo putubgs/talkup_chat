@@ -6,7 +6,6 @@ import mongoose, { MongooseError } from "mongoose";
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { method } = req;
 
-  console.log(`Received ${method} request with body`, req.body);
 
   await connectMongoDB();
 

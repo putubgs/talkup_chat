@@ -21,7 +21,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     case 'DELETE':
       try {
-        console.log(res.status(200).json({success: true, data: req.query.id}))
         const story = await Card.findByIdAndDelete(req.query.id);
 
         if (!story) {
@@ -30,7 +29,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
         res.status(200).json({ success: true, data: {}, message: 'Story deleted successfully' });
       } catch (error) {
-        console.log(res.status(200).json({success: true, data: req.query.id}))
         const mongoError = error as MongooseError;
   
         if (mongoError instanceof mongoose.Error.CastError) {

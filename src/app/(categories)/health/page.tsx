@@ -15,7 +15,6 @@ const Health: React.FC = () => {
     try {
       const res = await fetch("/api/getData/getUserProfile");
       const data = await res.json();
-      console.log(data.users);
       setUserData(data.users);
     } catch (error) {
       console.error("Failed to fetch users", error);
@@ -26,7 +25,6 @@ const Health: React.FC = () => {
     try {
       const res = await fetch("/api/getData/getProfileStory");
       const data = await res.json();
-      console.log(data.stories);
       setCardData(data.stories);
     } catch (error) {
       console.error("Failed to fetch stories", error);

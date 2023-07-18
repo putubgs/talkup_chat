@@ -78,7 +78,7 @@ const StoryCard: FC<StoryCardProps> = ({
   setToastVisible,
   setError,
 }) => {
-  let { data: session } = useSession() as { data: CustomUser | null; update: any };
+  let { data: session } = useSession() as { data: CustomUser | null};
   const cardColor = categoryColors[category as keyof typeof categoryColors];
   const pathname = usePathname();
   const isProfile = pathname ? pathname.startsWith("/profile") : false;
@@ -115,20 +115,15 @@ const StoryCard: FC<StoryCardProps> = ({
   }
 
   const handleRequest = async () => {
-    console.log(session?.user?.id)
     if(session?.user?.id == userId){
       handleClose();
       return console.log("you can't request on your own story");
     }
-    console.log(schedule)
     const requestData = {
       cardId: id,
       requesterId: session?.user?.id,
       schedule: schedule
     }
-
-    console.log(requestData)
-
     try {
       await axios.post(
         "http://localhost:3000/api/dataUpload/addNotification",
@@ -144,7 +139,6 @@ const StoryCard: FC<StoryCardProps> = ({
   }
 
   const handleSelectedSchedule = (schedule: Schedule) => {
-    console.log(schedule);
     setSelectedSchedule(schedule)
   };
 

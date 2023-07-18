@@ -17,10 +17,10 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
     const { cardId, requesterId, schedule } = req.body;
 
     try {
-      const existingNotification = await Notification.findOne({ cardId });
-      if (existingNotification) {
-        return res.status(400).json({ error: "cardId already exists" });
-      }
+        const existingNotification = await Notification.findOne({ cardId, requesterId });
+        if (existingNotification) {
+            return res.status(400).json({ error: "can't submit the same card" });
+        }
 
       const notificationDoc = await Notification.create({
         cardId,

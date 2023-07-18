@@ -138,7 +138,6 @@ const AddStoryPage: React.FC = () => {
       duration: totalTime.toFixed(2),
       activation: true,
     };
-    console.log(storyData);
 
     try {
       await axios.post(

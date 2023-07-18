@@ -63,8 +63,8 @@ export default async function handler(
     case "PUT":
       try {
         const notification = await Notification.findByIdAndUpdate(
-          req.body.id,
-          { approval: req.body.newApproval },
+          req.body._id,
+          { approval: req.body.approval },
           { new: true, runValidators: true }
         );
 

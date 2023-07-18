@@ -1,43 +1,65 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Delete } from "@mui/icons-material";
+import { formatDistanceToNow } from "date-fns";
+import axios from "axios";
+
+type Schedule = {
+  date: string;
+  time: string;
+};
 
 const NotificationChanger: React.FC<{
-  onSelectedDecision: (approval: string) => void;
-}> = ({ onSelectedDecision }) => {
-  const [approve, setApprove] = useState("");
+  onSelectedDecision: (id: string, approval: string) => void;
+  deleteNotification: (id: string) => void;
+  username: string;
+  createdAt: Date;
+  schedule: Schedule | null;
+  id: string;
+  approve: string;
+}> = ({ onSelectedDecision, deleteNotification, username, createdAt, schedule, id, approve }) => {
+  const [newApprove, setApprove] = useState("");
+  const date = new Date(createdAt);
+  const timeAgo = formatDistanceToNow(new Date(date), {
+    includeSeconds: true,
+  });
+
+  useEffect(() => {
+    setApprove(approve);
+  }, []);
+
+  let notificationText = "";
+  let notificationApprove = "";
+  let notificationReject = "";
+  console.log(schedule);
+
+  if (schedule != null) {
+    notificationText = `${username} is requesting to be a listener in your current story at ${schedule.date}, ${schedule.time}!`;
+    notificationApprove = `You were accepting the request from ${username} to be your listener at ${schedule.date}, ${schedule.time}. See you in the chatroom!`;
+    notificationReject = `You were rejecting the request from ${username} to be your listener at ${schedule.date}, ${schedule.time}.`;
+  } else {
+    notificationText = `${username} is requesting to be a listener in your current story!`;
+    notificationApprove = `You were accepting the request from ${username} to be your listener. See you in the chatroom!`;
+    notificationReject = `You were rejecting the request from ${username} to be your listener.`;
+  }
+
   return (
     <>
       <div className="flex flex-col space-y-2">
-        {approve == "" && (
-          <div>
-            Anonymous#12345 is requesting to be a listener in your current
-            story!
-          </div>
-        )}
-        {approve == "approve" && (
-          <div>
-            You were accepting the request from Anonymous#12345 to be your
-            listener. See you in the chatroom!
-          </div>
-        )}
+        {newApprove == "" && <div>{notificationText}</div>}
+        {newApprove == "approve" && <div>{notificationApprove}</div>}
 
-        {approve == "reject" && (
-          <div>
-            You were rejecting the request from Anonymous#12345 to be your
-            listener.
-          </div>
-        )}
-        <div className="text-xs">4:27 PM</div>
+        {newApprove == "reject" && <div>{notificationReject}</div>}
+        <div className="text-xs">{timeAgo} ago</div>
       </div>
 
-      {approve == "" ? (
+      {newApprove == "" ? (
         <div className="flex items-center justify-center space-x-3">
           <div
             className="bg-red-500 h-fit py-2 px-3 rounded-xl text-white cursor-pointer"
             onClick={() => {
-              const newState = "reject";
-              setApprove(newState);
-              onSelectedDecision(newState);
+              const approval = "reject";
+              onSelectedDecision(id, approval);
+              setApprove(approval);
             }}
           >
             Reject
@@ -45,9 +67,9 @@ const NotificationChanger: React.FC<{
           <div
             className="bg-[#0D90FF] h-fit py-2 px-3 rounded-xl text-white cursor-pointer"
             onClick={() => {
-              const newState = "approve";
-              setApprove(newState);
-              onSelectedDecision(newState);
+              const approval = "approve";
+              onSelectedDecision(id, approval);
+              setApprove(approval);
             }}
           >
             Approve
@@ -55,7 +77,12 @@ const NotificationChanger: React.FC<{
         </div>
       ) : (
         <div className="flex items-center justify-center">
-          <div className="bg-red-500 h-fit p-2 rounded-xl text-white cursor-pointer">
+          <div
+            className="bg-red-500 h-fit p-2 rounded-xl text-white cursor-pointer"
+            onClick={() => {
+              deleteNotification(id);
+            }}
+          >
             <Delete />
           </div>
         </div>
