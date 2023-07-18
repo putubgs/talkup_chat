@@ -42,7 +42,9 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
                 <HomeIcon
                   size={12}
                   color={
-                    isProfilePage || isAddingStoryPage || isMessage ? "#85878A" : "#0D90FF"
+                    isProfilePage || isAddingStoryPage || isMessage
+                      ? "#85878A"
+                      : "#0D90FF"
                   }
                 />
                 <p className="text-[20px] ml-3">Dashboard</p>
@@ -53,10 +55,7 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
                 }`}
                 onClick={() => router.push("/message")}
               >
-                <MsgIcon
-                  size={12}
-                  color={isMessage ? "#0D90FF" : "#85878A"}
-                />
+                <MsgIcon size={12} color={isMessage ? "#0D90FF" : "#85878A"} />
                 <p className="text-[20px] ml-3">Message</p>
               </div>
               <div

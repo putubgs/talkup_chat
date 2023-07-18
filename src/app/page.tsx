@@ -12,6 +12,8 @@ import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import DirectStory from "@/components/dashboard/DirectStory";
 import { Toast } from "@/components/Toast";
+import { Notifications } from "@mui/icons-material";
+import Notification from "@/components/notification/notificationModal";
 
 interface CustomUser extends Session {
   user: {
@@ -35,6 +37,7 @@ const Home: React.FC = () => {
   const [toastMessage, setToastMessage] = useState("");
   const [toastVisible, setToastVisible] = useState(false);
   const [errorStatus, setError] = useState(false);
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const currentRef = cardRef.current;
@@ -87,6 +90,14 @@ const Home: React.FC = () => {
     fetchUser();
   }, []);
 
+  const handleOpen = () => {
+    setOpen(true);
+  }
+
+  const handleClose = () => {
+    setOpen(false);
+  }
+
   return (
     <section className="flex flex-col min-w-0">
       <div className="flex h-[120px] bg-[#FFFFFF] p-7 justify-between min-w-0">
@@ -108,9 +119,10 @@ const Home: React.FC = () => {
             <div className="absolute right-20 top-1/2 transform -translate-y-1/2">
               <SearchIcon size={20} color="black" />
             </div>
-            <div>
-              <FilterIcon size={35} color="black" />
+            <div className="bg-[#F4F4F4] rounded-md p-2 cursor-pointer" onClick={handleOpen}>
+              <Notifications fontSize="medium" style={{color: "black"}} />
             </div>
+            <Notification open={open} handleClose={handleClose}/>
           </div>
         </div>
       </div>

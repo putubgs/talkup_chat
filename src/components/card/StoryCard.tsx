@@ -1,7 +1,7 @@
 "use client";
 import React, { FC, useState } from "react";
 import ArrowIcon from "@/components/icons/ArrowIcon";
-import HighlightedText from "../HighlightedText";
+import HighlightedText from "../dashboard/HighlightedText";
 import { usePathname } from "next/navigation";
 import { Dialog, DialogTitle, Box } from "@mui/material";
 import { styled } from "@mui/system";
