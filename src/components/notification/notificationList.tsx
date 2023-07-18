@@ -127,8 +127,8 @@ const NotificationList: React.FC<{
   return (
     <div className="flex flex-col space-y-4">
       {isLoading ? (
-      <div>Loading...</div>  // You can replace this with your own custom loading component or spinner.
-    ) : requestAvailability ? (
+        <div className="w-full p-5 text-center">Loading...</div> // You can replace this with your own custom loading component or spinner.
+      ) : requestAvailability ? (
         <>
           {mergedData
             ?.sort(
@@ -170,9 +170,6 @@ const NotificationList: React.FC<{
                   });
                 } catch (error) {
                   console.error(error);
-                }
-                if (approve == "approve") {
-                  setRender((prev) => !prev);
                 }
                 setIsLoading(false);
               };
