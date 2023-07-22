@@ -12,8 +12,9 @@ import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import DirectStory from "@/components/dashboard/DirectStory";
 import { Toast } from "@/components/Toast";
-import { Notifications } from "@mui/icons-material";
+import Notifications from "@mui/icons-material/Notifications";
 import Notification from "@/components/notification/notificationModal";
+
 
 interface CustomUser extends Session {
   user: {

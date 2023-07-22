@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Dialog, DialogTitle, Box } from "@mui/material";
 import { styled } from "@mui/system";
 import { avatars } from "@/dummy/avatars";
-import { Delete } from "@mui/icons-material";
+// import { Delete } from "@mui/icons-material";
 import axios from "axios";
 import NotificationChanger from "./notificationChanger";
 import { useSession } from "next-auth/react";
