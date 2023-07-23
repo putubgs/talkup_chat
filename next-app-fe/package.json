@@ -1,0 +1,47 @@
+{
+  "name": "talkup_chat",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@emotion/react": "^11.11.1",
+    "@emotion/styled": "^11.11.0",
+    "@mui/icons-material": "^5.11.16",
+    "@types/mongoose": "^5.11.97",
+    "@types/node": "20.2.0",
+    "@types/react": "18.2.6",
+    "@types/react-dom": "18.2.4",
+    "amqplib": "^0.10.3",
+    "autoprefixer": "10.4.14",
+    "axios": "^1.4.0",
+    "date-fns": "^2.30.0",
+    "dotenv": "^16.3.1",
+    "eslint": "8.40.0",
+    "eslint-config-next": "13.4.2",
+    "lodash": "^4.17.21",
+    "mongodb": "^5.6.0",
+    "mongoose": "^7.3.1",
+    "next": "13.4.2",
+    "next-auth": "^4.22.1",
+    "postcss": "8.4.23",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-slick": "^0.29.0",
+    "slick-carousel": "^1.8.1",
+    "socket.io-client": "^4.7.1",
+    "swiper": "^9.3.2",
+    "tailwind": "^4.0.0",
+    "tailwind-scrollbar-hide": "^1.1.7",
+    "tailwindcss": "3.3.2",
+    "typescript": "5.0.4"
+  },
+  "devDependencies": {
+    "@types/axios": "^0.14.0",
+    "@types/lodash": "^4.14.195"
+  }
+}
