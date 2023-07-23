@@ -37,55 +37,46 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const isAddingStoryPage = pathname === "/adding_story";
   const isMessage = pathname === "/message";
   const [chatData, setChatData] = useState<any[] | null>(null);
-  const [userAvailability, setUserAvailability] = useState<boolean>(
-    false
-  );
+  const [userAvailability, setUserAvailability] = useState<boolean>(false);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const res = await fetch("/api/getData/getAndUpdateChat");
-        const data = await res.json();
-        let isUserInMembers = data.data.some(
-          (chat: any) =>
-            chat.members &&
-            chat.members.some(
-              (member: any) =>
-                member.id === session?.user.id
-            )
-        );
-        
-        let isUserActivated = false;
-        if (isUserInMembers) {
-          const userChat = data.data.find(
-            (chat: any) =>
-              chat.members &&
-              chat.members.some(
-                (member: any) =>
-                  member.id === session?.user.id
-              )
-          );
-          
-          const userMember = userChat?.members?.find(
-            (member: any) =>
-              member.id === session?.user.id
-          );
-          
-          isUserActivated = userMember?.activation;
-        }
-        
-        console.log(isUserActivated);    
-        setChatData(data.data);
-        console.log(data.data)
-        console.log(isUserInMembers)
-        setUserAvailability(isUserActivated);
-      } catch (error) {
-        console.error("Failed to fetch stories", error);
-      }
-    };
-
     fetchData();
   }, []);
+
+  const fetchData = async () => {
+    try {
+      const res = await fetch("/api/getData/getAndUpdateChat");
+      const data = await res.json();
+      let isUserInMembers = data.data.some(
+        (chat: any) =>
+          chat.members &&
+          chat.members.some((member: any) => member.id === session?.user.id)
+      );
+
+      let isUserActivated = false;
+      if (isUserInMembers) {
+        const userChat = data.data.find(
+          (chat: any) =>
+            chat.members &&
+            chat.members.some((member: any) => member.id === session?.user.id)
+        );
+
+        const userMember = userChat?.members?.find(
+          (member: any) => member.id === session?.user.id
+        );
+
+        isUserActivated = userMember?.activation;
+      }
+
+      console.log(isUserActivated);
+      setChatData(data.data);
+      console.log(data.data);
+      console.log(isUserInMembers);
+      setUserAvailability(isUserActivated);
+    } catch (error) {
+      console.error("Failed to fetch stories", error);
+    }
+  };
 
   return (
     <ChatDataContext.Provider value={{ chatData, userAvailability }}>

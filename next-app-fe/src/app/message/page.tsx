@@ -39,38 +39,28 @@ const Message: React.FC = () => {
   const [chatActive, setChatActive] = useState(true);
   const { NEXT_PUBLIC_BASE_URL } = process.env;
   const socket = io(NEXT_PUBLIC_BASE_URL || "http://localhost:4000/");
-  // const [chatData, setChatData] = useState<any[] | null>(null);
   const context = useContext(ChatDataContext);
   if (!context) {
-    // handle the case where the context is null
-    // this could involve returning early, throwing an error, etc.
     throw new Error("Context is null");
   }
   const { chatData, userAvailability } = context;
+  const [hasJoined, setHasJoined] = useState(false);
 
-  console.log(userAvailability);
-  // const [userAvailability, setUserAvailability] = useState<boolean | undefined>(
-  //   false
-  // );
-  // useEffect(() => {
-  //   let isUserInMembers = chatData.some(
-  //     (chat: any) =>
-  //       chat.members &&
-  //       chat.members.some(
-  //         (member: any) =>
-  //           member.id === session?.user.id && member.activation
-  //       )
-  //   );
-  //   socket.emit("send-to-all", { message: `Hi from ${session?.user.email}` });
-  //   socket.on("send-from-server", (data) => {
-  //     console.log(data);
-  //     // setRoomId(data.message);
-  //   });
-  // }, []);
+  useEffect(() => {
+    if (!hasJoined && userAvailability) {
+      socket.emit("join-room", session?.user.id);
+      setHasJoined(true);
+    }
+  
+    socket.on("receive-message", (data) => {
+      console.log("data", data);
+    });
+  
+    // return () => {
+    //   socket.off("receive-message");
+    // };
+  }, [userAvailability, session, socket, chatData, hasJoined]);
 
-  // The rest of your component...
-
-  // Other useEffects...
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -120,6 +110,32 @@ const Message: React.FC = () => {
         fontSize="large"
       />
     ));
+
+  const sendMessage = () => {
+    if (msgValue !== "") {
+      let recipientId;
+
+      if (chatData) {
+        chatData.forEach((chat: any) => {
+          let recipient = chat.members.filter(
+            (member: any) => member.userId !== session?.user.id
+          )[0];
+          if (recipient) {
+            recipientId = recipient.userId;
+          }
+        });
+      }
+
+      socket.emit("send-message", {
+        text: msgValue,
+        sender: session?.user.id,
+        recipient: recipientId,
+      });
+
+      // Clear the input field after message has been sent
+      setMsgValue("");
+    }
+  };
 
   const handleFeedback = () => {
     if (feedbackForm) {
@@ -350,7 +366,7 @@ const Message: React.FC = () => {
                   value={msgValue}
                   onChange={handleInputChange}
                 />
-                <div className="flex cursor-pointer">
+                <div className="flex cursor-pointer" onClick={sendMessage}>
                   <SendIcon fontSize="medium" />
                 </div>
               </div>
