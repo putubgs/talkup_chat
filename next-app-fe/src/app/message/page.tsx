@@ -46,10 +46,9 @@ const Message: React.FC = () => {
     // this could involve returning early, throwing an error, etc.
     throw new Error("Context is null");
   }
-  const { chatData, userAvailability} = context;
-  
+  const { chatData, userAvailability } = context;
 
-  console.log(userAvailability)
+  console.log(userAvailability);
   // const [userAvailability, setUserAvailability] = useState<boolean | undefined>(
   //   false
   // );
@@ -142,7 +141,19 @@ const Message: React.FC = () => {
   return (
     <>
       {!userAvailability ? (
-        <div>hello</div>
+        <div className="flex h-screen w-full items-center justify-center">
+          <div className="flex flex-col items-center justify-center w-[800px]">
+            <div className="p-10 bg-[#0D90FF] text-white w-[500px] rounded-xl px-12 text-center font-bold text-lg">
+              You does not have any active chat, please pick one or wait till a
+              listener approach your story ^_^
+            </div>
+            <div className="flex flex-col self-start pt-1">
+              <div className="w-12 h-12 bg-[#0D90FF] rounded-full ml-24"></div>
+              <div className="w-8 h-8 bg-[#0D90FF] rounded-full ml-16"></div>
+              <div className="w-4 h-4 bg-[#0D90FF] rounded-full ml-12"></div>
+            </div>
+          </div>
+        </div>
       ) : (
         <div className="flex py-2 h-screen">
           <section className="flex flex-col w-full p-4">

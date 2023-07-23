@@ -1,13 +1,12 @@
 "use client";
 import React, { useState, useEffect, useRef } from "react";
-// import Navigation from "@/components/navigation";
 import FilterIcon from "@/components/icons/FilterIcon";
+import { useRouter } from 'next/navigation';
 import SearchIcon from "@/components/icons/SearchIcon";
 import ArrowIcon from "@/components/icons/ArrowIcon";
 import CircleIcon from "@/components/icons/CircleIcon";
 import StoryCard from "@/components/card/StoryCard";
 import CategorySection from "@/components/dashboard/CategorySection";
-// import { cardData } from "@/dummy/stories";
 import { Session } from "next-auth";
 import { useSession } from "next-auth/react";
 import DirectStory from "@/components/dashboard/DirectStory";
@@ -39,6 +38,7 @@ const Home: React.FC = () => {
   const [toastVisible, setToastVisible] = useState(false);
   const [errorStatus, setError] = useState(false);
   const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     const currentRef = cardRef.current;
@@ -90,6 +90,10 @@ const Home: React.FC = () => {
   }, []);
 
   const handleOpen = () => {
+    if (!session) {
+      router.push("/login");
+      return;
+    }
     setOpen(true);
   }
 

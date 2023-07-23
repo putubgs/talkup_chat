@@ -17,6 +17,7 @@ const NotificationChanger: React.FC<{
   id: string;
   approve: string;
   ownId: string | undefined;
+  requesterId: string | undefined;
 }> = ({
   onSelectedDecision,
   deleteNotification,
@@ -26,6 +27,7 @@ const NotificationChanger: React.FC<{
   id,
   approve,
   ownId,
+  requesterId
 }) => {
   const [newApprove, setApprove] = useState("");
   const date = new Date(createdAt);
@@ -38,12 +40,10 @@ const NotificationChanger: React.FC<{
   }, []);
 
   const uploadChat = async () => {
-    console.log(id)
-    console.log(ownId)
     const chatData = {
       members: [
         { userId: ownId, activation: true },
-        { userId: id, activation: true },
+        { userId: requesterId, activation: true },
       ],
       schedule: schedule,
       lastMessage: null,

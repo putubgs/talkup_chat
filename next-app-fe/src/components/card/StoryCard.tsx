@@ -1,5 +1,6 @@
 "use client";
 import React, { FC, useState } from "react";
+import { useRouter } from 'next/navigation';
 import ArrowIcon from "@/components/icons/ArrowIcon";
 import HighlightedText from "../dashboard/HighlightedText";
 import { usePathname } from "next/navigation";
@@ -81,6 +82,7 @@ const StoryCard: FC<StoryCardProps> = ({
   let { data: session } = useSession() as { data: CustomUser | null};
   const cardColor = categoryColors[category as keyof typeof categoryColors];
   const pathname = usePathname();
+  const router = useRouter();
   const isProfile = pathname ? pathname.startsWith("/profile") : false;
   const textColor = category === "Spirituality" ? "black" : "white";
   const circleColor =
@@ -115,6 +117,10 @@ const StoryCard: FC<StoryCardProps> = ({
   }
 
   const handleRequest = async () => {
+    if (!session) {
+      router.push("/login");
+      return;
+    }
     if(session?.user?.id == userId){
       handleClose();
       return console.log("you can't request on your own story");

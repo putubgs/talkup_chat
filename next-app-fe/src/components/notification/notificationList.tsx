@@ -37,6 +37,7 @@ const NotificationList: React.FC<{
   >(false);
   const [mergedData, setMergedData] = useState<any[] | undefined>();
   const [isLoading, setIsLoading] = useState(true);
+  const [requesterRealId, setRequesterRealId] = useState("")
 
   const fetchNotification = async () => {
     setIsLoading(true);
@@ -144,6 +145,7 @@ const NotificationList: React.FC<{
                 setIsLoading(true);
                 if (approve === "approve") {
                   mergedData.forEach((request) => {
+                    console.log(request)
                     if (request._id !== id) {
                       request.approval = "reject";
                       try {
@@ -204,6 +206,7 @@ const NotificationList: React.FC<{
                     createdAt={requester.createdAt}
                     schedule={requester.schedule}
                     id={requester._id}
+                    requesterId={requester.requesterId}
                     approve={requester.approval}
                     ownId={session?.user.id}
                   />

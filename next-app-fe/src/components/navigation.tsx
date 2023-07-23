@@ -31,9 +31,7 @@ interface CustomUser extends Session {
 
 const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
-  let { data: session } = useSession({
-    required: true,
-  }) as { data: CustomUser | null };
+  let { data: session } = useSession() as { data: CustomUser | null };
   const pathname = usePathname();
   const isProfilePage = pathname ? pathname.startsWith("/profile") : false;
   const isAddingStoryPage = pathname === "/adding_story";
