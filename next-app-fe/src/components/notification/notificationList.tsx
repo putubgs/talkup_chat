@@ -29,7 +29,6 @@ const NotificationList: React.FC<{
     data: CustomUser | null;
   };
   const [cardData, setCardData] = useState<any[] | null>(null);
-  const [render, setRender] = useState(false);
   const [notifData, setNotifData] = useState<any[] | null>(null);
   const [requesterData, setRequesterData] = useState<any[] | null>(null);
   const [requestAvailability, setRequestAvailability] = useState<
@@ -90,7 +89,6 @@ const NotificationList: React.FC<{
         (notif) => notif.requesterId === requester._id
       );
 
-      // If there is a matching notification, combine the requester object with the notification object
       if (matchingNotif) {
         return {
           ...requester,
@@ -98,7 +96,6 @@ const NotificationList: React.FC<{
         };
       }
 
-      // If there is no matching notification, just return the original requester object
       return requester;
     });
 

@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState, useContext } from "react";
 import dotenv from "dotenv";
-import { useRouter } from "next/router";
 import { avatars } from "@/dummy/avatars";
 import Image from "next/image";
 import CircleIcon from "@/components/icons/CircleIcon";
@@ -11,8 +10,10 @@ import { forbiddenWords } from "@/dummy/forbiddenWords";
 import { io } from "socket.io-client";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
+import { useRouter } from 'next/navigation';
 import { Session } from "next-auth";
 import { ChatDataContext } from "@/context/chatDataContext";
+import axios from "axios";
 // dotenv.config();
 
 interface CustomUser extends Session {
@@ -27,6 +28,39 @@ interface CustomUser extends Session {
     avatar?: number;
   };
 }
+
+interface CardData {
+  activation: boolean,
+  algorithm: string,
+  category: string,
+  createdAt: string,
+  duration: string,
+  schedules: any[],
+  story: string,
+  storyType: string,
+  updatedAt: string,
+  userId: string,
+  __v: number,
+  _id: string
+}
+
+
+interface recipientUser{
+  id: string;
+  name: string | null;
+  email: string | null;
+  username: string;
+  points: number;
+  rating: number;
+  tier: number;
+  avatar: number;
+}
+
+type MessageType = {
+  sender: string;
+  text: string;
+  timestamp: string;
+};
 
 const Message: React.FC = () => {
   let { data: session } = useSession({
@@ -43,24 +77,74 @@ const Message: React.FC = () => {
   if (!context) {
     throw new Error("Context is null");
   }
-  const { chatData, userAvailability } = context;
+  const { chatData, userAvailability, usersData, cardsData, notifsData } = context;
   const [hasJoined, setHasJoined] = useState(false);
+  const [messages, setMessages] = useState<MessageType[]>([]);
+  const [recipientData, setRecipientData] = useState<recipientUser | null>(null);
+  const [isListener, setIsListener] = useState<boolean | undefined>(false);
+  const router = useRouter()
+
+  console.log(userAvailability)
 
   useEffect(() => {
     if (!hasJoined && userAvailability) {
       socket.emit("join-room", session?.user.id);
       setHasJoined(true);
     }
-  
+
+    let recipientId: string | null = null;
+    if (chatData) {
+      chatData.forEach((chat: any) => {
+        let recipient = chat.members.filter(
+          (member: any) => member.userId !== session?.user.id
+        )[0];
+        if (recipient) {
+          recipientId = recipient.userId;
+        }
+      });
+    }
+
+    console.log(notifsData)
+    let listenerCheck;
+
+    if(Array.isArray(cardsData) && Array.isArray(notifsData)){
+        const approvedNotif = notifsData.find((notif: any) => notif.approval === "approve");
+        if(approvedNotif) {
+            const correspondingCard = cardsData.find((card: any) => card._id === approvedNotif.cardId);
+            if(correspondingCard) {
+                listenerCheck = correspondingCard.userId !== session?.user.id;
+            }
+        }
+    }
+    
+    console.log(listenerCheck)
+    setIsListener(listenerCheck)    
+
+
+
     socket.on("receive-message", (data) => {
       console.log("data", data);
+      setMessages((prevMessages: MessageType[]) => [
+        ...prevMessages,
+        {
+          sender: data.sender,
+          text: data.text,
+          timestamp: new Date().toLocaleTimeString(),
+        },
+      ]);
     });
-  
-    // return () => {
-    //   socket.off("receive-message");
-    // };
-  }, [userAvailability, session, socket, chatData, hasJoined]);
 
+    socket.on("error", (error) => {
+      console.error(`Socket error: ${error}`);
+    });  
+
+    let recipientUser;
+    if (usersData) {
+      recipientUser = usersData.find((user: any) => user._id === recipientId);
+    }
+    setRecipientData(recipientUser);    
+    
+  }, [userAvailability, session, socket, chatData, hasJoined]);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -112,7 +196,7 @@ const Message: React.FC = () => {
     ));
 
   const sendMessage = () => {
-    if (msgValue !== "") {
+    if (msgValue !== "" && session?.user.id) {
       let recipientId;
 
       if (chatData) {
@@ -126,24 +210,41 @@ const Message: React.FC = () => {
         });
       }
 
-      socket.emit("send-message", {
-        text: msgValue,
-        sender: session?.user.id,
-        recipient: recipientId,
+      // Check if recipientId exists before creating newMessage
+      if (recipientId) {
+        const newMessage = {
+          text: msgValue,
+          sender: session.user.id,
+          recipient: recipientId,
+        };
+
+        socket.emit("send-message", newMessage);
+
+        setMessages((prevMessages: MessageType[]) => [
+          ...prevMessages,
+          {
+            sender: newMessage.sender,
+            text: newMessage.text,
+            timestamp: new Date().toLocaleTimeString(),
+          },
+        ]);
+
+        // Clear the input field after message has been sent
+        setMsgValue("");
+      }
+    }
+  };
+
+  const deactivateUser = async () => {
+    try {
+      await axios.put("/api/getData/getAndUpdateChat", {
+        userId: session?.user?.id,
+        newActivation: false,
       });
-
-      // Clear the input field after message has been sent
-      setMsgValue("");
+    } catch (error) {
+      console.error(error);
     }
-  };
-
-  const handleFeedback = () => {
-    if (feedbackForm) {
-      setFeedbackForm(false);
-    } else {
-      setFeedbackForm(true);
-    }
-  };
+  }
 
   const sendFeeback = () => {
     let feedback = {
@@ -176,189 +277,60 @@ const Message: React.FC = () => {
             <div className="flex flex-col h-full bg-[#F6FAFF] rounded-xl p-6 space-y-10">
               <div className="flex justify-between">
                 <div className="flex items-center space-x-3">
-                  <Image src={avatars[0]} width={55} height={55} alt="avatar" />
+                <Image src={avatars[recipientData?.avatar !]} width={55} height={55} alt="avatar" />
                   <div className="flex flex-col">
-                    <div className="text-lg">Anonymous#12345 (Listener)</div>
-                    <div className="flex space-x-1">
-                      <CircleIcon size={8} color="green" />
-                      <div className="text-xs">Connected</div>
-                    </div>
+                    <div className="text-lg"> {recipientData?.username} {isListener ? "(Storyteller)" : "(Listener)"}</div>
                   </div>
                 </div>
+                {isListener ? (
                 <div
-                  className="flex h-fit bg-[#0D90FF] py-2 text-white px-4 rounded-xl cursor-pointer"
+                  className="flex h-fit bg-red-500 py-2 text-white px-4 rounded-xl cursor-pointer"
                   onClick={() => {
-                    handleFeedback();
-                    setChatActive(false);
+                    router.push("/")
+                    deactivateUser()
                   }}
                 >
                   End Chat
                 </div>
+                ) : (
+                  <div
+                  className="flex h-fit bg-red-500 py-2 text-white px-4 rounded-xl cursor-pointer"
+                  onClick={() => {
+                    setFeedbackForm(true);
+                  }}
+                >
+                  End Chat
+                </div>
+                )}
               </div>
 
-              <div className="w-full h-full flex flex-col space-y-10 overflow-y-scroll pb-[80px]">
-                <div className="flex space-x-6">
-                  <Image
-                    src={avatars[0]}
-                    width={65}
-                    height={65}
-                    alt="avatar"
-                    className="h-fit"
-                  />
-                  <div className="flex flex-col">
-                    <div className="flex space-x-4 items-center">
-                      <div className="font-bold">Anonymous#12344</div>
-                      <div className="text-xs">4:27 PM</div>
-                    </div>
-                    <div className="flex flex-col pt-2 space-y-4">
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
-                      </div>
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
-                      </div>
-                    </div>
-                  </div>
-                </div>
+              <div className="w-full h-full flex flex-col space-y-4 overflow-y-scroll pb-[80px]">
+                {messages.map((message, index) => {
+                  const isOwnMessage = message.sender === session?.user.id;
 
-                <div className="flex space-x-6">
-                  <Image
-                    src={avatars[3]}
-                    width={65}
-                    height={65}
-                    alt="avatar"
-                    className="h-fit"
-                  />
-                  <div className="flex flex-col">
-                    <div className="flex space-x-4 items-center">
-                      <div className="font-bold">Anonymous#12344</div>
-                      <div className="text-xs">4:27 PM</div>
-                    </div>
-                    <div className="flex flex-col pt-2 space-y-4">
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
+                  return (
+                    <div
+                      className={`flex flex-col space-y-1 ${
+                        !isOwnMessage ? "self-end" : ""
+                      }`}
+                      key={index}
+                    >
+                      <div
+                        className={`bg-[${
+                          !isOwnMessage ? "#3817E2" : "#0D90FF"
+                        }] w-fit px-4 py-1 rounded-xl text-white`}
+                      >
+                        {message.text}
                       </div>
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
+                      <div className="text-xs text-gray-500">
+                        {message.timestamp}
                       </div>
                     </div>
-                  </div>
-                </div>
-
-                <div className="flex space-x-6">
-                  <Image
-                    src={avatars[0]}
-                    width={65}
-                    height={65}
-                    alt="avatar"
-                    className="h-fit"
-                  />
-                  <div className="flex flex-col">
-                    <div className="flex space-x-4 items-center">
-                      <div className="font-bold">Anonymous#12344</div>
-                      <div className="text-xs">4:27 PM</div>
-                    </div>
-                    <div className="flex flex-col pt-2 space-y-4">
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
-                      </div>
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
-                      </div>
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
-                      </div>
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex space-x-6">
-                  <Image
-                    src={avatars[3]}
-                    width={65}
-                    height={65}
-                    alt="avatar"
-                    className="h-fit"
-                  />
-                  <div className="flex flex-col">
-                    <div className="flex space-x-4 items-center">
-                      <div className="font-bold">Anonymous#12344</div>
-                      <div className="text-xs">4:27 PM</div>
-                    </div>
-                    <div className="flex flex-col pt-2 space-y-4">
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
-                      </div>
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex space-x-6">
-                  <Image
-                    src={avatars[3]}
-                    width={65}
-                    height={65}
-                    alt="avatar"
-                    className="h-fit"
-                  />
-                  <div className="flex flex-col">
-                    <div className="flex space-x-4 items-center">
-                      <div className="font-bold">Anonymous#12344</div>
-                      <div className="text-xs">4:27 PM</div>
-                    </div>
-                    <div className="flex flex-col pt-2 space-y-4">
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
-                      </div>
-                      <div className="text-[13px]">
-                        Gee, its been good news all day. i met someone special
-                        today. she is really pretty. ill like to talk more about
-                        it but it has to be tomorrow. she should grab a drink
-                        later.
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  );
+                })}
               </div>
             </div>
-            <div className="bg-[#F6FAFF] h-fit -mt-[70px] px-4 flex">
+            <div className="bg-[#F6FAFF] h-fit -mt-[70px] px-4 flex z-10">
               <div className="flex w-full bg-[#F5F5F5] p-4 justify-between items-center rounded-xl">
                 <input
                   className="bg-[#F5F5F5] focus:outline-none w-full"

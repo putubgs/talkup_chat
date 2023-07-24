@@ -29,6 +29,22 @@ interface CustomUser extends Session {
   };
 }
 
+interface Member {
+  userId: string;
+  activation: boolean;
+  _id: string;
+}
+
+interface Chat {
+  id: string;
+  members: Member[];
+  schedule: null | string;
+  lastMessage: null | string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
 const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const router = useRouter();
   let { data: session } = useSession() as { data: CustomUser | null };
@@ -38,48 +54,91 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const isMessage = pathname === "/message";
   const [chatData, setChatData] = useState<any[] | null>(null);
   const [userAvailability, setUserAvailability] = useState<boolean>(false);
+  const [usersData, setUserData] = useState<any[] | null>(null);
+  const [cardsData, setCardData] = useState<any[] | null>(null);
+  const [notifsData, setNotifData] = useState<any[] | null>(null);
+  const theUserId = session?.user.id
 
   useEffect(() => {
     fetchData();
-  }, []);
+    fetchUser();
+    fetchCard();
+    fetchNotif();
+  }, [session]);
 
   const fetchData = async () => {
     try {
       const res = await fetch("/api/getData/getAndUpdateChat");
       const data = await res.json();
+      console.log(data.data[0]);
+      console.log(session?.user.id)
       let isUserInMembers = data.data.some(
-        (chat: any) =>
-          chat.members &&
-          chat.members.some((member: any) => member.id === session?.user.id)
+        (dataItem: Chat) =>
+          dataItem.members &&
+          dataItem.members.some(
+            (member: Member) => member.userId === session?.user.id
+          )
       );
+      console.log(isUserInMembers);
 
       let isUserActivated = false;
       if (isUserInMembers) {
         const userChat = data.data.find(
           (chat: any) =>
             chat.members &&
-            chat.members.some((member: any) => member.id === session?.user.id)
+            chat.members.some((member: any) => member.userId === session?.user.id)
         );
-
+        console.log(userChat);
         const userMember = userChat?.members?.find(
-          (member: any) => member.id === session?.user.id
+          (member: any) => member.userId === session?.user.id
         );
-
+        console.log(userMember);
         isUserActivated = userMember?.activation;
       }
 
-      console.log(isUserActivated);
       setChatData(data.data);
-      console.log(data.data);
-      console.log(isUserInMembers);
+      console.log(isUserActivated);
       setUserAvailability(isUserActivated);
     } catch (error) {
       console.error("Failed to fetch stories", error);
     }
   };
 
+  const fetchNotif = async () => {
+    try {
+      const res = await fetch("/api/getData/getUpdateDeleteNotif");
+      const data = await res.json();
+      setNotifData(data.data);
+    } catch (error) {
+      console.error("Failed to fetch notifications", error);
+    }
+  };
+
+  const fetchCard = async () => {
+    try {
+      const res = await fetch("/api/getData/getProfileStory");
+      const data = await res.json();
+      setCardData(data.stories);
+    } catch (error) {
+      console.error("Failed to fetch stories", error);
+    }
+  };
+
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/api/getData/getUserProfile");
+      const data = await res.json();
+      console.log(data.users);
+      setUserData(data.users);
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+    }
+  };
+
   return (
-    <ChatDataContext.Provider value={{ chatData, userAvailability }}>
+    <ChatDataContext.Provider
+      value={{ chatData, userAvailability, usersData, cardsData, notifsData }}
+    >
       <section className="flex min-w-0">
         <div className="bg-[#F6FAFF] w-[350px] h-screen flex flex-col sticky top-0 flex-shrink-0">
           <div className="flex p-8 pt-[70px] items-center">

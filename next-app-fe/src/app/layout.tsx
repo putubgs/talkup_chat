@@ -5,6 +5,7 @@ import Navigation from "@/components/navigation";
 import { usePathname } from "next/navigation";
 import { NextAuthProvider } from "./providers";
 
+
 const poppins = Poppins({ subsets: ["latin"], weight: "400" });
 
 export default function RootLayout({

@@ -22,31 +22,33 @@ export default async function handler(
       }
       break;
 
-    case "PUT":
-      try {
-        const chat = await Chat.findByIdAndUpdate(
-          req.body.members.usersId,
-          { activation: req.body.activation },
-          { new: true, runValidators: true }
-        );
-
-        if (!chat) {
-          return res.status(400).json({ success: false });
+      case "PUT":
+        try {
+          const chat = await Chat.findOneAndUpdate(
+            { "members.userId": req.body.userId },
+            { $set: { "members.$.activation": req.body.newActivation } },
+            { new: true, runValidators: true }
+          );
+      
+          if (!chat) {
+            return res.status(400).json({ success: false });
+          }
+      
+          res.status(200).json({ success: true, data: chat });
+        } catch (error) {
+          const mongoError = error as MongooseError;
+      
+          if (mongoError instanceof mongoose.Error.ValidationError) {
+            const firstErrorKey = Object.keys(mongoError.errors)[0];
+            const msg = mongoError.errors[firstErrorKey].message;
+            return res.status(409).json({ error: msg });
+          }
+      
+          return res.status(500).json({ error: mongoError.message });
         }
-
-        res.status(200).json({ success: true, data: chat });
-      } catch (error) {
-        const mongoError = error as MongooseError;
-
-        if (mongoError instanceof mongoose.Error.ValidationError) {
-          const firstErrorKey = Object.keys(mongoError.errors)[0];
-          const msg = mongoError.errors[firstErrorKey].message;
-          return res.status(409).json({ error: msg });
-        }
-
-        return res.status(500).json({ error: mongoError.message });
-      }
-      break;
+        break;
+      
+      
 
     default:
       res.setHeader("Allow", ["GET", "PUT"]);
