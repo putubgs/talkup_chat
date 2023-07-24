@@ -10,7 +10,7 @@ import { forbiddenWords } from "@/dummy/forbiddenWords";
 import { io } from "socket.io-client";
 import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 import { Session } from "next-auth";
 import { ChatDataContext } from "@/context/chatDataContext";
 import axios from "axios";
@@ -30,22 +30,21 @@ interface CustomUser extends Session {
 }
 
 interface CardData {
-  activation: boolean,
-  algorithm: string,
-  category: string,
-  createdAt: string,
-  duration: string,
-  schedules: any[],
-  story: string,
-  storyType: string,
-  updatedAt: string,
-  userId: string,
-  __v: number,
-  _id: string
+  activation: boolean;
+  algorithm: string;
+  category: string;
+  createdAt: string;
+  duration: string;
+  schedules: any[];
+  story: string;
+  storyType: string;
+  updatedAt: string;
+  userId: string;
+  __v: number;
+  _id: string;
 }
 
-
-interface recipientUser{
+interface recipientUser {
   id: string;
   name: string | null;
   email: string | null;
@@ -77,14 +76,19 @@ const Message: React.FC = () => {
   if (!context) {
     throw new Error("Context is null");
   }
-  const { chatData, userAvailability, usersData, cardsData, notifsData } = context;
+  const { chatData, userAvailability, usersData, cardsData, notifsData } =
+    context;
   const [hasJoined, setHasJoined] = useState(false);
   const [messages, setMessages] = useState<MessageType[]>([]);
-  const [recipientData, setRecipientData] = useState<recipientUser | null>(null);
-  const [isListener, setIsListener] = useState<boolean | undefined>(false);
-  const router = useRouter()
+  const [recipientData, setRecipientData] = useState<recipientUser | null>(
+    null
+  );
+  const [realRecipientId, setRecipientId] = useState<any | null>();
 
-  console.log(userAvailability)
+  const [isListener, setIsListener] = useState<boolean | undefined>(false);
+  const router = useRouter();
+
+  console.log(userAvailability);
 
   useEffect(() => {
     if (!hasJoined && userAvailability) {
@@ -100,27 +104,30 @@ const Message: React.FC = () => {
         )[0];
         if (recipient) {
           recipientId = recipient.userId;
+          setRecipientId(recipientId);
         }
       });
     }
 
-    console.log(notifsData)
+    console.log(notifsData);
     let listenerCheck;
 
-    if(Array.isArray(cardsData) && Array.isArray(notifsData)){
-        const approvedNotif = notifsData.find((notif: any) => notif.approval === "approve");
-        if(approvedNotif) {
-            const correspondingCard = cardsData.find((card: any) => card._id === approvedNotif.cardId);
-            if(correspondingCard) {
-                listenerCheck = correspondingCard.userId !== session?.user.id;
-            }
+    if (Array.isArray(cardsData) && Array.isArray(notifsData)) {
+      const approvedNotif = notifsData.find(
+        (notif: any) => notif.approval === "approve"
+      );
+      if (approvedNotif) {
+        const correspondingCard = cardsData.find(
+          (card: any) => card._id === approvedNotif.cardId
+        );
+        if (correspondingCard) {
+          listenerCheck = correspondingCard.userId !== session?.user.id;
         }
+      }
     }
-    
-    console.log(listenerCheck)
-    setIsListener(listenerCheck)    
 
-
+    console.log(listenerCheck);
+    setIsListener(listenerCheck);
 
     socket.on("receive-message", (data) => {
       console.log("data", data);
@@ -136,14 +143,13 @@ const Message: React.FC = () => {
 
     socket.on("error", (error) => {
       console.error(`Socket error: ${error}`);
-    });  
+    });
 
     let recipientUser;
     if (usersData) {
       recipientUser = usersData.find((user: any) => user._id === recipientId);
     }
-    setRecipientData(recipientUser);    
-    
+    setRecipientData(recipientUser);
   }, [userAvailability, session, socket, chatData, hasJoined]);
 
   const handleInputChange = (
@@ -244,15 +250,27 @@ const Message: React.FC = () => {
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
-  const sendFeeback = () => {
+  const sendFeeback = async () => {
     let feedback = {
-      comments: feedbackValue,
-      rate: rating,
+      userId: realRecipientId,
+      giverUsername: session?.user.username,
+      content: feedbackValue,
+      rating: rating,
     };
 
-    console.log(feedback);
+    try {
+      await axios.post(
+        "http://localhost:3000/api/dataUpload/addFeedback",
+        feedback
+      );
+    } catch (error) {
+      if (axios.isAxiosError(error) && error.response) {
+        console.log(error.response.data.error);
+      }
+    }
+
   };
 
   return (
@@ -277,30 +295,40 @@ const Message: React.FC = () => {
             <div className="flex flex-col h-full bg-[#F6FAFF] rounded-xl p-6 space-y-10">
               <div className="flex justify-between">
                 <div className="flex items-center space-x-3">
-                <Image src={avatars[recipientData?.avatar !]} width={55} height={55} alt="avatar" />
+                  <Image
+                    src={avatars[recipientData?.avatar!]}
+                    width={55}
+                    height={55}
+                    alt="avatar"
+                  />
                   <div className="flex flex-col">
-                    <div className="text-lg"> {recipientData?.username} {isListener ? "(Storyteller)" : "(Listener)"}</div>
+                    <div className="text-lg">
+                      {" "}
+                      {recipientData?.username}{" "}
+                      {isListener ? "(Storyteller)" : "(Listener)"}
+                    </div>
                   </div>
                 </div>
                 {isListener ? (
-                <div
-                  className="flex h-fit bg-red-500 py-2 text-white px-4 rounded-xl cursor-pointer"
-                  onClick={() => {
-                    router.push("/")
-                    deactivateUser()
-                  }}
-                >
-                  End Chat
-                </div>
+                  <div
+                    className="flex h-fit bg-red-500 py-2 text-white px-4 rounded-xl cursor-pointer"
+                    onClick={() => {
+                      // router.push("/")
+                      deactivateUser();
+                      window.location.reload();
+                    }}
+                  >
+                    End Chat
+                  </div>
                 ) : (
                   <div
-                  className="flex h-fit bg-red-500 py-2 text-white px-4 rounded-xl cursor-pointer"
-                  onClick={() => {
-                    setFeedbackForm(true);
-                  }}
-                >
-                  End Chat
-                </div>
+                    className="flex h-fit bg-red-500 py-2 text-white px-4 rounded-xl cursor-pointer"
+                    onClick={() => {
+                      setFeedbackForm(true);
+                    }}
+                  >
+                    End Chat
+                  </div>
                 )}
               </div>
 
@@ -349,13 +377,13 @@ const Message: React.FC = () => {
               <div className="flex h-full bg-[#F6FAFF] rounded-xl p-6 space-y-10 justify-center items-center">
                 <div className="flex flex-col items-center space-y-5">
                   <Image
-                    src={avatars[3]}
+                    src={avatars[recipientData?.avatar!]}
                     width={100}
                     height={100}
                     alt="avatar"
                     className="h-fit"
                   />
-                  <div className="text-lg">Anonymous#12345</div>
+                  <div className="text-lg">{recipientData?.username}</div>
                   <div className="flex cursor-pointer">{stars}</div>
                   <textarea
                     className="bg-[#D9D9D9] rounded-xl p-3 focus:outline-none"
@@ -367,7 +395,11 @@ const Message: React.FC = () => {
 
                   <div
                     className="flex items-center text-white space-x-2 bg-[#0D90FF] p-2 px-4 rounded-xl cursor-pointer"
-                    onClick={sendFeeback}
+                    onClick={() => {
+                      sendFeeback();
+                      deactivateUser();
+                      // window.location.reload();
+                    }}
                   >
                     <div>Send</div>
                     <SendIcon fontSize="small" />

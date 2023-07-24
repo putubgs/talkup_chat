@@ -11,7 +11,6 @@ import styles from "./AvatarWithOverlay.module.css";
 import { Dialog, DialogTitle, Box } from "@mui/material";
 import AvatarChanger from "@/components/profile/AvatarChanger";
 import { avatars } from "@/dummy/avatars";
-import { FeedbackData } from "@/dummy/feedback";
 import { styled } from "@mui/system";
 import { Session } from "next-auth";
 import axios from "axios";
@@ -41,11 +40,45 @@ export default function Layout({ children }: LayoutProps) {
   const [open, setOpen] = useState(false);
   const [open2, setOpen2] = useState(false);
   const [tierColor, setTierColor] = useState("#000000");
+  const [totalRating, setTotalRating] = useState<string | null>("0");
+
 
   useEffect(() => {
     setSelectedAvatar(session?.user?.avatar);
+  
+    const fetchFeedback = async () => {
+      try {
+        const res = await fetch("/api/getData/getFeedback");
+        const data = await res.json();
+        console.log(data.feedbacks)
+        const userId = session?.user.id;
+        const filteredFeedbacks = data.feedbacks.filter((feedback:any) => feedback.userId === userId);
+        console.log(filteredFeedbacks);
+        let ratingTemp = 0;
+        filteredFeedbacks.forEach((data:any) => {
+          console.log(data.rating)
+          ratingTemp += data.rating;
+        });
+        console.log(ratingTemp)
+        
+        let average = parseFloat((ratingTemp / filteredFeedbacks.length).toFixed(1));
+        
+        // Check if average is NaN and if so, set it to 0
+        if (isNaN(average)) {
+          average = 0;
+        }
+        
+        console.log(average);
+        setTotalRating(average.toString())
+        
+      } catch (error) {
+        console.error("Failed to fetch feedbacks", error);
+      }
+    };
+  
+    fetchFeedback()
   }, [session]);
-
+  
   useEffect(() => {
     if (session && session.user) {
       const newTier = getTierFromPoints(session.user.points ?? 0);
@@ -68,11 +101,9 @@ export default function Layout({ children }: LayoutProps) {
     }
   }, [session?.user?.points]);
 
-  let totalRating = 0;
 
-  FeedbackData.forEach((data) => {
-    totalRating += data.rating;
-  });
+
+
 
   const getTierFromPoints = (points: number) => {
     if (points >= 1000) return 1;
@@ -160,7 +191,7 @@ export default function Layout({ children }: LayoutProps) {
     },
   ];
 
-  const averageRating = (totalRating / FeedbackData.length).toFixed(1);
+  // const averageRating = (totalRating / feedbackData.length).toFixed(1);
   return (
     <section className="flex flex-col min-w-0">
       <div className="flex h-[150px] p-7 justify-between min-w-0 items-center">
@@ -210,7 +241,7 @@ export default function Layout({ children }: LayoutProps) {
               </div>
               <div className="flex">
                 <StarIcon size={15} color="#0D90FF" />
-                <p className="pl-1 text-[#0D90FF]">{averageRating}</p>
+                <p className="pl-1 text-[#0D90FF]">{totalRating}</p>
               </div>
             </div>
           </div>

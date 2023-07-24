@@ -7,6 +7,10 @@ const feedbackSchema = new Schema(
       ref: "User",
       required: true,
     },
+    giverUsername:{
+      type: String,
+      required: true,
+    },
     content: {
         type: String,
         required: true

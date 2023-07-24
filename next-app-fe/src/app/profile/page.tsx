@@ -27,6 +27,7 @@ const ProfilePage: React.FC = () => {
     },
   }) as { data: CustomUser | null; update: any };
   const [cardCount, setCardCount] = useState(0);
+  const [feedback, setFeedback] = useState<any[] | null>(null);
 
   useEffect(() => {
     const fetchUserCards = async () => {
@@ -41,8 +42,24 @@ const ProfilePage: React.FC = () => {
       }
     };
 
+    const fetchFeedback = async () => {
+      try {
+        const res = await fetch("/api/getData/getFeedback");
+        const data = await res.json();
+        console.log(data.feedbacks)
+        const userId = session?.user.id;
+        const filteredFeedbacks = data.feedbacks.filter((feedback:any) => feedback.userId === userId);
+        console.log(filteredFeedbacks);
+        setFeedback(filteredFeedbacks);
+        // setFeedback(data.feedbacks)
+      } catch (error) {
+        console.error("Failed to fetch feedbacks", error);
+      }
+    };
+
     if (session?.user?.id) {
       fetchUserCards();
+      fetchFeedback();
     }
   }, [session]);
   return (
@@ -184,12 +201,12 @@ const ProfilePage: React.FC = () => {
               </thead>
 
               <tbody>
-                {FeedbackData.map((data, index) => (
+                {feedback && feedback.map((data, index) => (
                   <tr key={index}>
-                    <td className="border-b px-4 py-6">{data.name}</td>
-                    <td className="border-b px-4 py-6">{data.date}</td>
+                    <td className="border-b px-4 py-6">{data.giverUsername}</td>
+                    <td className="border-b px-4 py-6">{new Date(data.createdAt).toLocaleDateString()}</td>
                     <td className="border-b px-4 py-6 text-[13px]">
-                      {data.feedback}
+                      {data.content}
                     </td>
                     <td className="border-b px-4 py-6 text-right">
                       <div className="bg-[#A1E4D8] border border-[#008767] text-[#008767] px-7 inline-block rounded">
