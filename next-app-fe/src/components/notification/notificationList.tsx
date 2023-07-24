@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import Image from "next/image";
 import { Dialog, DialogTitle, Box } from "@mui/material";
 import { styled } from "@mui/system";
@@ -8,6 +8,7 @@ import axios from "axios";
 import NotificationChanger from "./notificationChanger";
 import { useSession } from "next-auth/react";
 import { Session } from "next-auth";
+import { FetchDataContext } from "@/context/chatDataContext";
 
 interface CustomUser extends Session {
   user: {
@@ -28,85 +29,95 @@ const NotificationList: React.FC<{
   let { data: session } = useSession() as {
     data: CustomUser | null;
   };
-  const [cardData, setCardData] = useState<any[] | null>(null);
-  const [notifData, setNotifData] = useState<any[] | null>(null);
+  const context = useContext(FetchDataContext);
+  if (!context) {
+    throw new Error("Context is null");
+  }
+  const { notifsData, cardsData } = context;
   const [requesterData, setRequesterData] = useState<any[] | null>(null);
   const [requestAvailability, setRequestAvailability] = useState<
     boolean | undefined
   >(false);
   const [mergedData, setMergedData] = useState<any[] | undefined>();
-  const [isLoading, setIsLoading] = useState(true);
-  const [requesterRealId, setRequesterRealId] = useState("")
-
-  const fetchNotification = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/getData/getUpdateDeleteNotif");
-      const data = await res.json();
-      setNotifData(data.data);
-    } catch (error) {
-      console.error("Failed to fetch notifications", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const [isLoading, setIsLoading] = useState(false);
+  const [requesterRealId, setRequesterRealId] = useState("");
 
   useEffect(() => {
-    const activeCardData = cardData?.filter((card) => card.activation === true);
 
-    const matchingCards = activeCardData?.filter(
-      (card) => card.userId == session?.user?.id
+
+    const matchingCards = cardsData?.filter(
+      (card: any) => card.userId == session?.user?.id
     );
-    const requestCheck = matchingCards?.some((card) =>
-      notifData?.some((notif) => notif.cardId == card._id)
+    console.log(matchingCards);
+    const requestCheck = matchingCards?.some((card: any) =>
+      notifsData?.some((notif: any) => notif.cardId == card._id)
     );
+
+    console.log(notifsData);
+    const filteredCardId = cardsData?.filter(
+      (card: any) =>
+        card.userId === session?.user.id
+    );
+    console.log(filteredCardId);
 
     const matchingUsers =
-      users?.filter((user) =>
-        notifData?.some((notification) => notification.requesterId === user._id)
-      ) || [];
+      notifsData?.reduce((acc: any[], notification: any) => {
+        const relatedUser = users?.find(
+          (user) => user._id === notification.requesterId
+        );
+
+        // Check if notification.cardId is present in filteredCardId
+        const isCardIdMatch = filteredCardId?.some(
+          (card: any) => card._id === notification.cardId
+        );
+
+        if (relatedUser && isCardIdMatch) {
+          acc.push(relatedUser);
+        }
+        return acc;
+      }, []) || [];
+
+    console.log(matchingUsers);
     setRequesterData(matchingUsers);
     console.log(requestCheck);
     setRequestAvailability(requestCheck);
-  }, [cardData, users]);
-
-  const fetchStory = async () => {
-    setIsLoading(true);
-    try {
-      const res = await fetch("/api/getData/getAndDeleteStory");
-      const data = await res.json();
-      setCardData(data.data);
-    } catch (error) {
-      console.error("Failed to fetch notifications", error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }, [cardsData, users, notifsData]);
 
   useEffect(() => {
-    const mergedArray = requesterData?.map((requester) => {
-      const matchingNotif = notifData?.find(
-        (notif) => notif.requesterId === requester._id
-      );
+    const filteredCardId = cardsData?.filter(
+      (card: any) =>
+        card.userId === session?.user.id
+    );
+    console.log(filteredCardId);
 
-      if (matchingNotif) {
-        return {
+    console.log(requesterData)
+    let mergedArray = requesterData?.flatMap((requester) => {
+      const matchingNotifs = notifsData?.filter((notif: any) => {
+        return notif.requesterId === requester._id && filteredCardId.some((card:any) => card._id === notif.cardId);
+      });
+
+      console.log(matchingNotifs)
+
+      if (matchingNotifs && matchingNotifs.length > 0) {
+        return matchingNotifs.map((notif: any) => ({
           ...requester,
-          ...matchingNotif,
-        };
+          ...notif,
+        }));
       }
 
-      return requester;
+      return []; // return an empty array if no matching notifications
     });
 
-    setMergedData(mergedArray);
-    console.log(mergedArray);
-  }, [requesterData, notifData]);
+    // Removing duplicates based on _id property
+    const uniqueArray = Array.from(new Set(mergedArray?.map((a) => a._id))).map(
+      (_id) => {
+        return mergedArray?.find((a) => a._id === _id);
+      }
+    );
 
-  useEffect(() => {
-    fetchNotification();
-    fetchStory();
-  }, []);
+    setMergedData(uniqueArray);
+    console.log(uniqueArray);
+  }, [cardsData, requesterData, notifsData]);
 
   const deleteNotification = async (id: string) => {
     return new Promise((resolve, reject) => {
@@ -142,7 +153,7 @@ const NotificationList: React.FC<{
                 setIsLoading(true);
                 if (approve === "approve") {
                   mergedData.forEach((request) => {
-                    console.log(request)
+                    console.log(request);
                     if (request._id !== id) {
                       request.approval = "reject";
                       try {

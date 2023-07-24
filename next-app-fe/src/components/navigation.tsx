@@ -14,7 +14,7 @@ import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { signOut } from "next-auth/react";
 import { Session } from "next-auth";
-import { ChatDataContext } from "@/context/chatDataContext";
+import { FetchDataContext } from "@/context/chatDataContext";
 
 interface CustomUser extends Session {
   user: {
@@ -57,7 +57,7 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const [usersData, setUserData] = useState<any[] | null>(null);
   const [cardsData, setCardData] = useState<any[] | null>(null);
   const [notifsData, setNotifData] = useState<any[] | null>(null);
-  const theUserId = session?.user.id
+  const theUserId = session?.user.id;
 
   useEffect(() => {
     fetchData();
@@ -70,8 +70,6 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     try {
       const res = await fetch("/api/getData/getAndUpdateChat");
       const data = await res.json();
-      console.log(data.data[0]);
-      console.log(session?.user.id)
       let isUserInMembers = data.data.some(
         (dataItem: Chat) =>
           dataItem.members &&
@@ -82,22 +80,26 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
       console.log(isUserInMembers);
 
       let isUserActivated = false;
+
       if (isUserInMembers) {
         const userChat = data.data.find(
-          (chat: any) =>
+          (chat: Chat) =>
             chat.members &&
-            chat.members.some((member: any) => member.userId === session?.user.id)
+            chat.members.some(
+              (member: Member) =>
+                member.userId === session?.user.id && member.activation === true
+            )
         );
+
         console.log(userChat);
         const userMember = userChat?.members?.find(
-          (member: any) => member.userId === session?.user.id
+          (member: Member) => member.userId === session?.user.id
         );
-        console.log(userMember);
+        console.log(userMember?.activation);
         isUserActivated = userMember?.activation;
       }
 
       setChatData(data.data);
-      console.log(isUserActivated);
       setUserAvailability(isUserActivated);
     } catch (error) {
       console.error("Failed to fetch stories", error);
@@ -136,7 +138,7 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   };
 
   return (
-    <ChatDataContext.Provider
+    <FetchDataContext.Provider
       value={{ chatData, userAvailability, usersData, cardsData, notifsData }}
     >
       <section className="flex min-w-0">
@@ -260,7 +262,7 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
         </div>
         <div className=" overflow-auto flex-grow min-w-0">{children}</div>
       </section>
-    </ChatDataContext.Provider>
+    </FetchDataContext.Provider>
   );
 };
 

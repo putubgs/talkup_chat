@@ -43,6 +43,7 @@ const NotificationChanger: React.FC<{
 
   const uploadChat = async () => {
     const chatData = {
+      cardId: cardId,
       members: [
         { userId: ownId, activation: true },
         { userId: requesterId, activation: true },
@@ -112,7 +113,7 @@ const NotificationChanger: React.FC<{
               const approval = "reject";
               onSelectedDecision(id, approval);
               setApprove(approval);
-              uploadChat();
+              // uploadChat();
             }}
           >
             Reject

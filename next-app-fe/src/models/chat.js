@@ -7,6 +7,11 @@ const memberSchema = new Schema({
 
 const chatSchema = new Schema(
   {
+    cardId: {
+      type: Schema.Types.ObjectId,
+      ref: "Card",
+      required: true,
+    },
     members: [memberSchema],
     schedule: {
       type: new Schema({

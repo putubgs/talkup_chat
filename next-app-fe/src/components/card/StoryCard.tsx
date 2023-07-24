@@ -277,12 +277,6 @@ const StoryCard: FC<StoryCardProps> = ({
               </div>
               <div className="text-xs">{timeAgo} ago</div>
             </div>
-            <SchedulePicker
-              schedules={schedules}
-              storyType={storyType}
-              isProfile={isProfile}
-              onSelectedScheduleChange={handleSelectedSchedule}
-            />
             {listenerData ? (
               <>
                 <hr />
@@ -300,6 +294,12 @@ const StoryCard: FC<StoryCardProps> = ({
                 </div>
               </>
             ) : null}
+            <SchedulePicker
+              schedules={schedules}
+              storyType={storyType}
+              isProfile={isProfile}
+              onSelectedScheduleChange={handleSelectedSchedule}
+            />
           </div>
           {isProfile ? (
             <div className="flex justify-center">

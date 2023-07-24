@@ -12,7 +12,7 @@ import { useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useRouter } from "next/navigation";
 import { Session } from "next-auth";
-import { ChatDataContext } from "@/context/chatDataContext";
+import { FetchDataContext } from "@/context/chatDataContext";
 import axios from "axios";
 // dotenv.config();
 
@@ -72,7 +72,7 @@ const Message: React.FC = () => {
   const [chatActive, setChatActive] = useState(true);
   const { NEXT_PUBLIC_BASE_URL } = process.env;
   const socket = io(NEXT_PUBLIC_BASE_URL || "http://localhost:4000/");
-  const context = useContext(ChatDataContext);
+  const context = useContext(FetchDataContext);
   if (!context) {
     throw new Error("Context is null");
   }
@@ -112,10 +112,22 @@ const Message: React.FC = () => {
     console.log(notifsData);
     let listenerCheck;
 
-    if (Array.isArray(cardsData) && Array.isArray(notifsData)) {
+    if (Array.isArray(chatData) && Array.isArray(notifsData)) {
       const approvedNotif = notifsData.find(
-        (notif: any) => notif.approval === "approve"
+        (notif: any) =>
+          notif.approval === "approve" &&
+          chatData?.some(
+            (chat: any) =>
+              chat.cardId === notif.cardId &&
+              chat.members.some(
+                (member: any) =>
+                  member.userId === session?.user.id &&
+                  member.activation === true
+              )
+          )
       );
+
+      console.log(approvedNotif);
       if (approvedNotif) {
         const correspondingCard = cardsData.find(
           (card: any) => card._id === approvedNotif.cardId
@@ -149,6 +161,7 @@ const Message: React.FC = () => {
     if (usersData) {
       recipientUser = usersData.find((user: any) => user._id === recipientId);
     }
+    console.log(usersData);
     setRecipientData(recipientUser);
   }, [userAvailability, session, socket, chatData, hasJoined]);
 
@@ -270,7 +283,6 @@ const Message: React.FC = () => {
         console.log(error.response.data.error);
       }
     }
-
   };
 
   return (
@@ -279,7 +291,7 @@ const Message: React.FC = () => {
         <div className="flex h-screen w-full items-center justify-center">
           <div className="flex flex-col items-center justify-center w-[800px]">
             <div className="p-10 bg-[#0D90FF] text-white w-[500px] rounded-xl px-12 text-center font-bold text-lg">
-              You does not have any active chat, please pick one or wait till a
+              You do not have any active chat, please pick one or wait till a
               listener approach your story ^_^
             </div>
             <div className="flex flex-col self-start pt-1">
