@@ -398,7 +398,7 @@ const Message: React.FC = () => {
                     onClick={() => {
                       sendFeeback();
                       deactivateUser();
-                      // window.location.reload();
+                      window.location.reload();
                     }}
                   >
                     <div>Send</div>

@@ -111,6 +111,7 @@ const SocialConnection: React.FC = () => {
                       storyType={card.storyType}
                       schedules={card.schedules}
                       userId={card.userId}
+                      listenerId={card.listenerId || null}
                       activation={card.activation}
                       username={user?.username}
                       avatar={user?.avatar}

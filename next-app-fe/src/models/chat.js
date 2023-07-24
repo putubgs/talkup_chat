@@ -15,11 +15,6 @@ const chatSchema = new Schema(
       }),
       default: null,
     },
-    lastMessage: {
-      type: Schema.Types.ObjectId,
-      ref: "messages",
-      default: null,
-    },
   },
   {
     timestamps: true,

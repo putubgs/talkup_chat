@@ -15,6 +15,7 @@ const NotificationChanger: React.FC<{
   createdAt: Date;
   schedule: Schedule | null;
   id: string;
+  cardId: string;
   approve: string;
   ownId: string | undefined;
   requesterId: string | undefined;
@@ -25,6 +26,7 @@ const NotificationChanger: React.FC<{
   createdAt,
   schedule,
   id,
+  cardId,
   approve,
   ownId,
   requesterId
@@ -46,7 +48,6 @@ const NotificationChanger: React.FC<{
         { userId: requesterId, activation: true },
       ],
       schedule: schedule,
-      lastMessage: null,
     };
     try {
       await axios.post(
@@ -59,6 +60,24 @@ const NotificationChanger: React.FC<{
       }
     }
   };
+
+  const updateCard = async () => {
+    console.log(cardId)
+    const newCard = {
+      id: cardId,
+      listenerId: requesterId,
+      activation: false
+    }
+    try{
+      await axios.put(
+        "http://localhost:3000/api/editProfile/update-story",
+        newCard
+      );
+    } catch (error){
+      console.error(error);
+    }
+  }
+  
 
   let notificationText = "";
   let notificationApprove = "";
@@ -105,6 +124,7 @@ const NotificationChanger: React.FC<{
               onSelectedDecision(id, approval);
               setApprove(approval);
               uploadChat();
+              updateCard()
             }}
           >
             Approve

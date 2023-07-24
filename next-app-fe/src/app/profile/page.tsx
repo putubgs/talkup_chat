@@ -28,6 +28,7 @@ const ProfilePage: React.FC = () => {
   }) as { data: CustomUser | null; update: any };
   const [cardCount, setCardCount] = useState(0);
   const [feedback, setFeedback] = useState<any[] | null>(null);
+  const [listeningCount, setListeningCount] = useState(0);
 
   useEffect(() => {
     const fetchUserCards = async () => {
@@ -39,6 +40,16 @@ const ProfilePage: React.FC = () => {
         setCardCount(data.cardCount);
       } catch (err) {
         console.error(err);
+      }
+    };
+
+    const fetchCard = async () => {
+      try {
+        const res = await fetch(`/api/getData/getTotalListening?listenerId=${session?.user?.id}`);
+        const data = await res.json();
+        setListeningCount(data.listeningCount)
+      } catch (error) {
+        console.error("Failed to fetch stories", error);
       }
     };
 
@@ -60,6 +71,7 @@ const ProfilePage: React.FC = () => {
     if (session?.user?.id) {
       fetchUserCards();
       fetchFeedback();
+      fetchCard()
     }
   }, [session]);
   return (
@@ -116,7 +128,7 @@ const ProfilePage: React.FC = () => {
                       fontSize="20"
                       fontFamily="Verdana"
                     >
-                      23 Story
+                      {listeningCount} Story
                     </text>
                   </g>
                   <defs>

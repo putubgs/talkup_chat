@@ -14,13 +14,12 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
   if (req.method === "POST") {
     if (!req.body) return res.status(400).json({ error: "Data is missing" });
 
-    const { members, schedule, lastMessage } = req.body;
+    const { members, schedule } = req.body;
 
     try {
         const chatDoc = await Chat.create({
             members,
             schedule,
-            lastMessage
         });
 
         const chat = chatDoc.toObject();
@@ -33,13 +32,11 @@ const handler = async (req: NextApiRequest, res: NextApiResponse) => {
       const mongoError = error as MongooseError;
 
       if (mongoError instanceof mongoose.Error.ValidationError) {
-        // Extracting the first error message from the validation error
         const firstErrorKey = Object.keys(mongoError.errors)[0];
         const msg = mongoError.errors[firstErrorKey].message;
         return res.status(409).json({ error: msg });
       }
 
-      // If it's not a validation error, just return the error message
       return res.status(500).json({ error: mongoError.message });
     }
   } else {

@@ -170,6 +170,7 @@ const Home: React.FC = () => {
                       avatar={user?.avatar}
                       createdAt={card.createdAt}
                       refetch={fetchCard}
+                      listenerId={card.listenerId || null}
                       setToastMessage={setToastMessage}
                       setToastVisible={setToastVisible}
                       setError={setError}

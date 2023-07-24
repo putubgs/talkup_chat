@@ -114,6 +114,7 @@ const Health: React.FC = () => {
                       username={user?.username}
                       avatar={user?.avatar}
                       createdAt={card.createdAt}
+                      listenerId={card.listenerId || null}
                       refetch={() => new Promise<void>(() => {})}
                       setToastMessage={() => {}}
                       setToastVisible={() => {}}

@@ -203,6 +203,7 @@ const NotificationList: React.FC<{
                     createdAt={requester.createdAt}
                     schedule={requester.schedule}
                     id={requester._id}
+                    cardId={requester.cardId}
                     requesterId={requester.requesterId}
                     approve={requester.approval}
                     ownId={session?.user.id}

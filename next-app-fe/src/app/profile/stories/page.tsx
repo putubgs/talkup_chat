@@ -79,6 +79,7 @@ const ProfileStory: React.FC = () => {
                 schedules={card.schedules}
                 userId={card.userId}
                 activation={card.activation}
+                listenerId={card.listenerId}
                 username={session?.user?.username}
                 avatar={session?.user?.avatar}
                 createdAt={card.createdAt}

@@ -112,6 +112,7 @@ const Spirituality: React.FC = () => {
                       userId={card.userId}
                       activation={card.activation}
                       username={user?.username}
+                      listenerId={card.listenerId || null}
                       avatar={user?.avatar}
                       createdAt={card.createdAt}
                       refetch={() => new Promise<void>(() => {})}

@@ -113,6 +113,7 @@ const Finance: React.FC = () => {
                       activation={card.activation}
                       username={user?.username}
                       avatar={user?.avatar}
+                      listenerId={card.listenerId || null}
                       createdAt={card.createdAt}
                       refetch={() => new Promise<void>(() => {})}
                       setToastMessage={() => {}}

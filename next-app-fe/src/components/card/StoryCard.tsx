@@ -1,6 +1,6 @@
 "use client";
-import React, { FC, useState } from "react";
-import { useRouter } from 'next/navigation';
+import React, { FC, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import ArrowIcon from "@/components/icons/ArrowIcon";
 import HighlightedText from "../dashboard/HighlightedText";
 import { usePathname } from "next/navigation";
@@ -28,6 +28,7 @@ interface StoryCardProps {
   activation: boolean;
   username: string | undefined;
   avatar: number | undefined;
+  listenerId: string;
   createdAt: Date;
   refetch: () => Promise<void>;
   setToastMessage: (toastMsg: string) => void;
@@ -73,13 +74,14 @@ const StoryCard: FC<StoryCardProps> = ({
   username,
   avatar,
   activation,
+  listenerId,
   createdAt,
   refetch,
   setToastMessage,
   setToastVisible,
   setError,
 }) => {
-  let { data: session } = useSession() as { data: CustomUser | null};
+  let { data: session } = useSession() as { data: CustomUser | null };
   const cardColor = categoryColors[category as keyof typeof categoryColors];
   const pathname = usePathname();
   const router = useRouter();
@@ -88,13 +90,12 @@ const StoryCard: FC<StoryCardProps> = ({
   const circleColor =
     category === "Finance" ? "rgba(28,28,28,0.2)" : "rgba(59,130,246,0.2)";
   const [open, setOpen] = useState(false);
-  const [schedule, setSelectedSchedule] = useState<Schedule | null>(
-    null
-  );
+  const [schedule, setSelectedSchedule] = useState<Schedule | null>(null);
   const date = new Date(createdAt);
   const timeAgo = formatDistanceToNow(new Date(date), {
     includeSeconds: true,
   });
+  const [listenerData, setListenerData] = useState<any[] | null>(null);
 
   async function handleDelete(id: any) {
     setToastVisible(false);
@@ -116,20 +117,42 @@ const StoryCard: FC<StoryCardProps> = ({
     }
   }
 
+  const fetchUser = async () => {
+    try {
+      const res = await fetch("/api/getData/getUserProfile");
+      const data = await res.json();
+      // Assuming listenerId is defined
+      console.log(data.users);
+      const filteredUsers = data.users.filter(
+        (user: any) => user._id === listenerId
+      );
+      console.log(filteredUsers);
+      setListenerData(filteredUsers);
+    } catch (error) {
+      console.error("Failed to fetch users", error);
+    }
+  };
+
+  useEffect(() => {
+    if (listenerId) {
+      fetchUser();
+    }
+  }, []);
+
   const handleRequest = async () => {
     if (!session) {
       router.push("/login");
       return;
     }
-    if(session?.user?.id == userId){
+    if (session?.user?.id == userId) {
       handleClose();
       return console.log("you can't request on your own story");
     }
     const requestData = {
       cardId: id,
       requesterId: session?.user?.id,
-      schedule: schedule
-    }
+      schedule: schedule,
+    };
     try {
       await axios.post(
         "http://localhost:3000/api/dataUpload/addNotification",
@@ -142,17 +165,16 @@ const StoryCard: FC<StoryCardProps> = ({
         handleClose();
       }
     }
-  }
+  };
 
   const handleSelectedSchedule = (schedule: Schedule) => {
-    setSelectedSchedule(schedule)
+    setSelectedSchedule(schedule);
   };
 
   const CustomDialog = styled(Dialog)(({ theme }) => ({
     "& .MuiDialog-paper": {
       width: "100%",
       maxWidth: 350,
-      // height: "50%",
     },
   }));
 
@@ -215,7 +237,9 @@ const StoryCard: FC<StoryCardProps> = ({
             <div className="flex text-xs h-6 bg-white self-end rounded items-center pl-2 pr-2">
               <p className="text-black">{category}</p>
             </div>
-            <div className="text-xl w-60" style={{ color: textColor }}>{story}</div>
+            <div className="text-xl w-60" style={{ color: textColor }}>
+              {story}
+            </div>
           </div>
         </Box>
         <Box
@@ -259,6 +283,23 @@ const StoryCard: FC<StoryCardProps> = ({
               isProfile={isProfile}
               onSelectedScheduleChange={handleSelectedSchedule}
             />
+            {listenerData ? (
+              <>
+                <hr />
+                <div className="flex items-center justify-between">
+                  <div className="text-xs">Listened by: </div>
+                  <div className="flex items-center space-x-2">
+                    <div className="text-xs">{listenerData[0].username}</div>
+                    <Image
+                      src={avatars[listenerData[0].avatar]}
+                      width={30}
+                      height={30}
+                      alt="avatar"
+                    />
+                  </div>
+                </div>
+              </>
+            ) : null}
           </div>
           {isProfile ? (
             <div className="flex justify-center">
