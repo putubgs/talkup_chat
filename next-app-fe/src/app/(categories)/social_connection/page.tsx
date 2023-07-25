@@ -1,15 +1,34 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import FilterIcon from "@/components/icons/FilterIcon";
 import SearchIcon from "@/components/icons/SearchIcon";
 import StoryCard from "@/components/card/StoryCard";
 import ArrowLeftIcon from "@/components/icons/ArrowLeft";
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
+import { Session } from "next-auth";
+import { useSession } from "next-auth/react";
+import Notifications from "@mui/icons-material/Notifications";
+import Notification from "@/components/notification/notificationModal";
 
-const SocialConnection: React.FC = () => {
+interface CustomUser extends Session {
+  user: {
+    id?: string;
+    name?: string | null;
+    username?: string;
+    points?: number;
+    rating?: number;
+    tier?: number;
+    avatar?: number;
+  };
+}
+
+const Family: React.FC = () => {
+  let { data: session } = useSession() as { data: CustomUser | null };
   const [searchQuery, setSearchQuery] = useState("");
   const [cardData, setCardData] = useState<any[] | null>(null);
   const [userData, setUserData] = useState<any[] | null>(null);
+  const [open, setOpen] = useState(false);
+  const router = useRouter();
 
   const fetchUser = async () => {
     try {
@@ -25,7 +44,6 @@ const SocialConnection: React.FC = () => {
     try {
       const res = await fetch("/api/getData/getProfileStory");
       const data = await res.json();
-
       setCardData(data.stories);
     } catch (error) {
       console.error("Failed to fetch stories", error);
@@ -48,6 +66,18 @@ const SocialConnection: React.FC = () => {
       card.activation === true
   );
 
+  const handleOpen = () => {
+    if (!session) {
+      router.push("/login");
+      return;
+    }
+    setOpen(true);
+  }
+
+  const handleClose = () => {
+    setOpen(false);
+  }
+
   return (
     <section className="flex flex-col min-w-0">
       <div className="flex h-[120px] bg-[#FFFFFF] p-7 justify-between min-w-0">
@@ -69,9 +99,10 @@ const SocialConnection: React.FC = () => {
             <div className="absolute right-20 top-1/2 transform -translate-y-1/2">
               <SearchIcon size={20} color="black" />
             </div>
-            <div>
-              <FilterIcon size={35} color="black" />
+            <div className="bg-[#F4F4F4] rounded-md p-2 cursor-pointer" onClick={handleOpen}>
+              <Notifications fontSize="medium" style={{color: "black"}} />
             </div>
+            <Notification open={open} handleClose={handleClose} users={userData}/>
           </div>
         </div>
       </div>
@@ -111,11 +142,11 @@ const SocialConnection: React.FC = () => {
                       storyType={card.storyType}
                       schedules={card.schedules}
                       userId={card.userId}
-                      listenerId={card.listenerId || null}
                       activation={card.activation}
                       username={user?.username}
                       avatar={user?.avatar}
                       createdAt={card.createdAt}
+                      listenerId={card.listenerId || null}
                       refetch={() => new Promise<void>(() => {})}
                       setToastMessage={() => {}}
                       setToastVisible={() => {}}
@@ -131,4 +162,4 @@ const SocialConnection: React.FC = () => {
   );
 };
 
-export default SocialConnection;
+export default Family;

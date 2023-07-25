@@ -127,7 +127,6 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
     try {
       const res = await fetch("/api/getData/getUserProfile");
       const data = await res.json();
-      console.log(data.users);
       setUserData(data.users);
     } catch (error) {
       console.error("Failed to fetch users", error);
@@ -190,10 +189,6 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
                     color={isProfilePage ? "#0D90FF" : "#85878A"}
                   />
                   <p className="text-[20px] ml-3">Profile</p>
-                </div>
-                <div className="flex w-full p-3 rounded-xl text-[#85878A] items-center cursor-pointer">
-                  <SettingsIcon size={12} color={"#85878A"} />
-                  <p className="text-[20px] ml-3">Settings</p>
                 </div>
                 <div
                   className={`flex w-full p-3 rounded-xl items-center cursor-pointer ${

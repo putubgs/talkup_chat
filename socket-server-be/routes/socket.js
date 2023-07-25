@@ -14,18 +14,14 @@ const io = new Server(server, {
   },
 });
 
-// Initialize a map to keep track of room sizes
 const roomSizeMap = new Map();
 
 io.on("connection", (socket) => {
   socket.on("join-room", (userId) => {
-    // Get the current room size
     const roomSize = roomSizeMap.get(userId) || 0;
 
-    // If the room size is less than 2, allow the user to join
     if (roomSize < 2) {
       socket.join(userId);
-      // Increment the room size in the map
       roomSizeMap.set(userId, roomSize + 1);
       console.log(userId);
     } else {
@@ -50,10 +46,7 @@ io.on("connection", (socket) => {
   });
 
   socket.on("disconnect", () => {
-    // When a socket disconnects, decrement the room size
-    // Only do this if the user was in a room
     socket.rooms.forEach(roomId => {
-      // Exclude the socket ID
       if (roomId !== socket.id) {
         const roomSize = roomSizeMap.get(roomId);
         if (roomSize) {

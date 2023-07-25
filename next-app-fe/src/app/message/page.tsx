@@ -96,8 +96,8 @@ const Message: React.FC = () => {
       userAvailability &&
       new Date() >=
         new Date(
-          `${currentNotif?.schedule.date}T${convertTo24Hour(
-            currentNotif?.schedule.time
+          `${currentNotif?.schedule?.date}T${convertTo24Hour(
+            currentNotif?.schedule?.time
           )}`
         )
     ) {
@@ -108,15 +108,21 @@ const Message: React.FC = () => {
     let recipientId: string | null = null;
     if (chatData) {
       chatData.forEach((chat: any) => {
-        let recipient = chat.members.filter(
-          (member: any) => member.userId !== session?.user.id
-        )[0];
-        if (recipient) {
-          recipientId = recipient.userId;
-          setRecipientId(recipientId);
+        let member = chat.members.find(
+          (member: any) => member.userId === session?.user.id && member.activation === true
+        );
+        if (member) {
+          let recipient = chat.members.filter(
+            (member: any) => member.userId !== session?.user.id
+          )[0];
+          if (recipient) {
+            recipientId = recipient.userId;
+            setRecipientId(recipientId);
+          }
         }
       });
     }
+    
 
     let listenerCheck;
 
@@ -347,8 +353,8 @@ const Message: React.FC = () => {
         </div>
       ) : new Date() <=
         new Date(
-          `${currentNotif?.schedule.date}T${convertTo24Hour(
-            currentNotif?.schedule.time
+          `${currentNotif?.schedule?.date}T${convertTo24Hour(
+            currentNotif?.schedule?.time
           )}`
         ) ? (
         <div className="flex h-screen w-full items-center justify-center">

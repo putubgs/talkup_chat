@@ -5,6 +5,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { Toast } from "@/components/Toast";
 import { useSession, signIn } from "next-auth/react";
+import Link from "next/link";
 
 const Login: React.FC = () => {
   const [email, setEmail] = useState("");
@@ -120,6 +121,13 @@ const Login: React.FC = () => {
             >
               Login
             </button>
+          </div>
+
+          <div className="text-lg font-bold text-center pt-12">
+            Do not have an account? 
+            <Link href="/register">
+            <span className="ml-2 underline">Register Here!</span>
+            </Link>
           </div>
         </form>
       </div>

@@ -5,6 +5,7 @@ import Visibility from "@mui/icons-material/Visibility";
 import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import { Toast } from "@/components/Toast";
 import axios from "axios";
+import Link from "next/link";
 
 const Register: React.FC = () => {
   const defaultValue = "Anonymous#";
@@ -235,6 +236,13 @@ const Register: React.FC = () => {
             >
               Register
             </button>
+          </div>
+
+          <div className="text-lg font-bold text-center pt-12">
+            Already have an account?
+            <Link href="/login">
+            <span className="ml-2 underline">Login Here!</span>
+            </Link>
           </div>
         </form>
       </div>

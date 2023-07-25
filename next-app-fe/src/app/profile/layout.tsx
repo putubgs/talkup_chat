@@ -108,7 +108,6 @@ export default function Layout({ children }: LayoutProps) {
   };
 
   const updateTier = async (newTier: number) => {
-    console.log(getTierFromPoints(session?.user.points ?? 0));
     try {
       const response = await axios.put("/api/editProfile/update-tier", {
         userId: session?.user?.id,
