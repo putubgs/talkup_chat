@@ -77,7 +77,6 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
             (member: Member) => member.userId === session?.user.id
           )
       );
-      console.log(isUserInMembers);
 
       let isUserActivated = false;
 
@@ -90,12 +89,10 @@ const Navigation: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
                 member.userId === session?.user.id && member.activation === true
             )
         );
-
-        console.log(userChat);
+;
         const userMember = userChat?.members?.find(
           (member: Member) => member.userId === session?.user.id
         );
-        console.log(userMember?.activation);
         isUserActivated = userMember?.activation;
       }
 

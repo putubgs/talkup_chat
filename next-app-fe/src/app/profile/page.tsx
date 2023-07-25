@@ -57,10 +57,8 @@ const ProfilePage: React.FC = () => {
       try {
         const res = await fetch("/api/getData/getFeedback");
         const data = await res.json();
-        console.log(data.feedbacks)
         const userId = session?.user.id;
         const filteredFeedbacks = data.feedbacks.filter((feedback:any) => feedback.userId === userId);
-        console.log(filteredFeedbacks);
         setFeedback(filteredFeedbacks);
         // setFeedback(data.feedbacks)
       } catch (error) {

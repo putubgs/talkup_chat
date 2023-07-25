@@ -122,11 +122,9 @@ const StoryCard: FC<StoryCardProps> = ({
       const res = await fetch("/api/getData/getUserProfile");
       const data = await res.json();
       // Assuming listenerId is defined
-      console.log(data.users);
       const filteredUsers = data.users.filter(
         (user: any) => user._id === listenerId
       );
-      console.log(filteredUsers);
       setListenerData(filteredUsers);
     } catch (error) {
       console.error("Failed to fetch users", error);

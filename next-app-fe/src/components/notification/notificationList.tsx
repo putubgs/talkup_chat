@@ -48,17 +48,14 @@ const NotificationList: React.FC<{
     const matchingCards = cardsData?.filter(
       (card: any) => card.userId == session?.user?.id
     );
-    console.log(matchingCards);
     const requestCheck = matchingCards?.some((card: any) =>
       notifsData?.some((notif: any) => notif.cardId == card._id)
     );
 
-    console.log(notifsData);
     const filteredCardId = cardsData?.filter(
       (card: any) =>
         card.userId === session?.user.id
     );
-    console.log(filteredCardId);
 
     const matchingUsers =
       notifsData?.reduce((acc: any[], notification: any) => {
@@ -77,9 +74,7 @@ const NotificationList: React.FC<{
         return acc;
       }, []) || [];
 
-    console.log(matchingUsers);
     setRequesterData(matchingUsers);
-    console.log(requestCheck);
     setRequestAvailability(requestCheck);
   }, [cardsData, users, notifsData]);
 
@@ -88,15 +83,12 @@ const NotificationList: React.FC<{
       (card: any) =>
         card.userId === session?.user.id
     );
-    console.log(filteredCardId);
 
-    console.log(requesterData)
     let mergedArray = requesterData?.flatMap((requester) => {
       const matchingNotifs = notifsData?.filter((notif: any) => {
         return notif.requesterId === requester._id && filteredCardId.some((card:any) => card._id === notif.cardId);
       });
 
-      console.log(matchingNotifs)
 
       if (matchingNotifs && matchingNotifs.length > 0) {
         return matchingNotifs.map((notif: any) => ({
@@ -116,7 +108,6 @@ const NotificationList: React.FC<{
     );
 
     setMergedData(uniqueArray);
-    console.log(uniqueArray);
   }, [cardsData, requesterData, notifsData]);
 
   const deleteNotification = async (id: string) => {
@@ -124,7 +115,6 @@ const NotificationList: React.FC<{
       axios
         .delete(`/api/getData/getUpdateDeleteNotif?id=${id}`)
         .then((response) => {
-          console.log(response);
           resolve(response);
         })
         .catch((error) => {
@@ -153,7 +143,6 @@ const NotificationList: React.FC<{
                 setIsLoading(true);
                 if (approve === "approve") {
                   mergedData.forEach((request) => {
-                    console.log(request);
                     if (request._id !== id) {
                       request.approval = "reject";
                       try {

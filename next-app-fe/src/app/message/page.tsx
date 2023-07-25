@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { Session } from "next-auth";
 import { FetchDataContext } from "@/context/chatDataContext";
 import axios from "axios";
+import { Schedule } from "@mui/icons-material";
 // dotenv.config();
 
 interface CustomUser extends Session {
@@ -26,6 +27,7 @@ interface CustomUser extends Session {
     rating?: number;
     tier?: number;
     avatar?: number;
+    updatePoints?: (newPoints: number) => void;
   };
 }
 
@@ -62,9 +64,9 @@ type MessageType = {
 };
 
 const Message: React.FC = () => {
-  let { data: session } = useSession({
+  let { data: session, update } = useSession({
     required: true,
-  }) as { data: CustomUser | null };
+  }) as { data: CustomUser | null; update: any };
   const [feedbackForm, setFeedbackForm] = useState(false);
   const [msgValue, setMsgValue] = useState("");
   const [feedbackValue, setFeedbackValue] = useState("");
@@ -86,12 +88,19 @@ const Message: React.FC = () => {
   const [realRecipientId, setRecipientId] = useState<any | null>();
 
   const [isListener, setIsListener] = useState<boolean | undefined>(false);
-  const router = useRouter();
-
-  console.log(userAvailability);
+  const [currentNotif, setCurrentNotif] = useState<any | null>();
 
   useEffect(() => {
-    if (!hasJoined && userAvailability) {
+    if (
+      !hasJoined &&
+      userAvailability &&
+      new Date() >=
+        new Date(
+          `${currentNotif?.schedule.date}T${convertTo24Hour(
+            currentNotif?.schedule.time
+          )}`
+        )
+    ) {
       socket.emit("join-room", session?.user.id);
       setHasJoined(true);
     }
@@ -109,7 +118,6 @@ const Message: React.FC = () => {
       });
     }
 
-    console.log(notifsData);
     let listenerCheck;
 
     if (Array.isArray(chatData) && Array.isArray(notifsData)) {
@@ -127,9 +135,10 @@ const Message: React.FC = () => {
           )
       );
 
-      console.log(approvedNotif);
+      setCurrentNotif(approvedNotif);
+
       if (approvedNotif) {
-        const correspondingCard = cardsData.find(
+        const correspondingCard = cardsData?.find(
           (card: any) => card._id === approvedNotif.cardId
         );
         if (correspondingCard) {
@@ -138,11 +147,9 @@ const Message: React.FC = () => {
       }
     }
 
-    console.log(listenerCheck);
     setIsListener(listenerCheck);
 
     socket.on("receive-message", (data) => {
-      console.log("data", data);
       setMessages((prevMessages: MessageType[]) => [
         ...prevMessages,
         {
@@ -161,7 +168,6 @@ const Message: React.FC = () => {
     if (usersData) {
       recipientUser = usersData.find((user: any) => user._id === recipientId);
     }
-    console.log(usersData);
     setRecipientData(recipientUser);
   }, [userAvailability, session, socket, chatData, hasJoined]);
 
@@ -182,7 +188,6 @@ const Message: React.FC = () => {
 
   const handleStarClick = (starIndex: number) => {
     setRating(starIndex);
-    console.log(starIndex);
   };
 
   const handleInputChange2 = (
@@ -265,6 +270,27 @@ const Message: React.FC = () => {
     }
   };
 
+  const updatePoints = async () => {
+    try {
+      const response = await axios.put("/api/editProfile/update-points", {
+        userId: session?.user?.id,
+        newPoints: 100,
+      });
+      const updatedUser = response.data.data;
+
+      await update({
+        ...session,
+        user: {
+          ...session?.user,
+          token: "xxx",
+          points: updatedUser.points,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   const sendFeeback = async () => {
     let feedback = {
       userId: realRecipientId,
@@ -285,6 +311,24 @@ const Message: React.FC = () => {
     }
   };
 
+  function convertTo24Hour(timeStr:any) {
+    if (!timeStr) {
+      console.error("Invalid time string");
+      // return a default time, you can modify this
+      return "00:00";
+    }
+
+    let [time, modifier] = timeStr?.split(" ");
+    let [hours, minutes] = time?.split(":");
+    if (hours === "12") {
+      hours = "00";
+    }
+    if (modifier === "PM") {
+      hours = parseInt(hours, 10) + 12;
+    }
+    return `${hours}:${minutes}`;
+  }
+
   return (
     <>
       {!userAvailability ? (
@@ -293,6 +337,25 @@ const Message: React.FC = () => {
             <div className="p-10 bg-[#0D90FF] text-white w-[500px] rounded-xl px-12 text-center font-bold text-lg">
               You do not have any active chat, please pick one or wait till a
               listener approach your story ^_^
+            </div>
+            <div className="flex flex-col self-start pt-1">
+              <div className="w-12 h-12 bg-[#0D90FF] rounded-full ml-24"></div>
+              <div className="w-8 h-8 bg-[#0D90FF] rounded-full ml-16"></div>
+              <div className="w-4 h-4 bg-[#0D90FF] rounded-full ml-12"></div>
+            </div>
+          </div>
+        </div>
+      ) : new Date() <=
+        new Date(
+          `${currentNotif?.schedule.date}T${convertTo24Hour(
+            currentNotif?.schedule.time
+          )}`
+        ) ? (
+        <div className="flex h-screen w-full items-center justify-center">
+          <div className="flex flex-col items-center justify-center w-[800px]">
+            <div className="p-10 bg-[#0D90FF] text-white w-[500px] rounded-xl px-12 text-center font-bold text-lg">
+              You have a scheduled chat at {currentNotif?.schedule.date},{" "}
+              {currentNotif?.schedule.time}. See you later!
             </div>
             <div className="flex flex-col self-start pt-1">
               <div className="w-12 h-12 bg-[#0D90FF] rounded-full ml-24"></div>
@@ -326,8 +389,9 @@ const Message: React.FC = () => {
                     className="flex h-fit bg-red-500 py-2 text-white px-4 rounded-xl cursor-pointer"
                     onClick={() => {
                       // router.push("/")
+
                       deactivateUser();
-                      window.location.reload();
+                      updatePoints();
                     }}
                   >
                     End Chat

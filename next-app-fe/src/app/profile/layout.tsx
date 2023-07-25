@@ -50,16 +50,12 @@ export default function Layout({ children }: LayoutProps) {
       try {
         const res = await fetch("/api/getData/getFeedback");
         const data = await res.json();
-        console.log(data.feedbacks)
         const userId = session?.user.id;
         const filteredFeedbacks = data.feedbacks.filter((feedback:any) => feedback.userId === userId);
-        console.log(filteredFeedbacks);
         let ratingTemp = 0;
         filteredFeedbacks.forEach((data:any) => {
-          console.log(data.rating)
           ratingTemp += data.rating;
         });
-        console.log(ratingTemp)
         
         let average = parseFloat((ratingTemp / filteredFeedbacks.length).toFixed(1));
         
@@ -68,7 +64,6 @@ export default function Layout({ children }: LayoutProps) {
           average = 0;
         }
         
-        console.log(average);
         setTotalRating(average.toString())
         
       } catch (error) {

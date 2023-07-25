@@ -63,7 +63,6 @@ const NotificationChanger: React.FC<{
   };
 
   const updateCard = async () => {
-    console.log(cardId)
     const newCard = {
       id: cardId,
       listenerId: requesterId,
@@ -83,7 +82,6 @@ const NotificationChanger: React.FC<{
   let notificationText = "";
   let notificationApprove = "";
   let notificationReject = "";
-  console.log(schedule);
 
   if (schedule != null) {
     notificationText = `${username} is requesting to be a listener in your current story at ${schedule.date}, ${schedule.time}!`;
