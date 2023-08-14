@@ -89,39 +89,47 @@ const Message: React.FC = () => {
 
   const [isListener, setIsListener] = useState<boolean | undefined>(false);
   const [currentNotif, setCurrentNotif] = useState<any | null>();
+  const currentDate = new Date();
+  const scheduledDate = new Date(`${currentNotif?.schedule?.date}T${convertTo24Hour(currentNotif?.schedule?.time)}`);
+  
+  console.log("Current Date:", currentDate);
+  console.log("Scheduled Date:", scheduledDate);
+  
 
   useEffect(() => {
-    if (
-      !hasJoined &&
-      userAvailability &&
-      new Date() >=
-        new Date(
-          `${currentNotif?.schedule?.date}T${convertTo24Hour(
-            currentNotif?.schedule?.time
-          )}`
-        )
-    ) {
-      socket.emit("join-room", session?.user.id);
-      setHasJoined(true);
-    }
+    if (currentNotif?.schedule?.time) {
+      console.log('Time to convert:', currentNotif.schedule.time);
 
-    let recipientId: string | null = null;
-    if (chatData) {
-      chatData.forEach((chat: any) => {
-        let member = chat.members.find(
-          (member: any) => member.userId === session?.user.id && member.activation === true
-        );
-        if (member) {
-          let recipient = chat.members.filter(
-            (member: any) => member.userId !== session?.user.id
-          )[0];
-          if (recipient) {
-            recipientId = recipient.userId;
-            setRecipientId(recipientId);
+      const convertedTime = convertTo24Hour(currentNotif.schedule.time);
+      if (convertedTime) {
+          const dateToCheck = new Date(`${currentNotif.schedule.date}T${convertedTime}`);
+
+          if (!hasJoined && userAvailability && new Date() >= dateToCheck) {
+              socket.emit("join-room", session?.user.id);
+              setHasJoined(true);
           }
-        }
+      }
+  }
+
+  let recipientId: string | null = null;
+  if (chatData) {
+      chatData.forEach((chat: any) => {
+          let member = chat.members.find(
+              (member: any) => member.userId === session?.user.id && member.activation === true
+          );
+          console.log(member)
+          if (member) {
+              let recipient = chat.members.filter(
+                  (member: any) => member.userId !== session?.user.id
+              )[0];
+              if (recipient) {
+                  console.log(recipient)
+                  recipientId = recipient.userId;
+                  setRecipientId(recipientId);
+              }
+          }
       });
-    }
+  }
     
 
     let listenerCheck;
@@ -175,7 +183,7 @@ const Message: React.FC = () => {
       recipientUser = usersData.find((user: any) => user._id === recipientId);
     }
     setRecipientData(recipientUser);
-  }, [userAvailability, session, socket, chatData, hasJoined]);
+  }, [userAvailability, session, socket, chatData, hasJoined, currentNotif]);
 
   const handleInputChange = (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -227,20 +235,8 @@ const Message: React.FC = () => {
 
   const sendMessage = () => {
     if (msgValue !== "" && session?.user.id) {
-      let recipientId;
+      let recipientId = realRecipientId;
 
-      if (chatData) {
-        chatData.forEach((chat: any) => {
-          let recipient = chat.members.filter(
-            (member: any) => member.userId !== session?.user.id
-          )[0];
-          if (recipient) {
-            recipientId = recipient.userId;
-          }
-        });
-      }
-
-      // Check if recipientId exists before creating newMessage
       if (recipientId) {
         const newMessage = {
           text: msgValue,
@@ -259,7 +255,6 @@ const Message: React.FC = () => {
           },
         ]);
 
-        // Clear the input field after message has been sent
         setMsgValue("");
       }
     }
@@ -317,23 +312,24 @@ const Message: React.FC = () => {
     }
   };
 
-  function convertTo24Hour(timeStr:any) {
+  function convertTo24Hour(timeStr: string | undefined): string {
     if (!timeStr) {
-      console.error("Invalid time string");
-      // return a default time, you can modify this
-      return "00:00";
+        console.error("Invalid time string");
+        return "00:00";
     }
 
-    let [time, modifier] = timeStr?.split(" ");
-    let [hours, minutes] = time?.split(":");
+    let [time, modifier] = timeStr.split(" ");
+    let [hours, minutes] = time.split(":");
     if (hours === "12") {
-      hours = "00";
+        hours = "00";
     }
     if (modifier === "PM") {
-      hours = parseInt(hours, 10) + 12;
+        hours = (parseInt(hours, 10) + 12).toString();
     }
     return `${hours}:${minutes}`;
   }
+
+
 
   return (
     <>
@@ -351,12 +347,7 @@ const Message: React.FC = () => {
             </div>
           </div>
         </div>
-      ) : new Date() <=
-        new Date(
-          `${currentNotif?.schedule?.date}T${convertTo24Hour(
-            currentNotif?.schedule?.time
-          )}`
-        ) ? (
+      ) : currentDate <= scheduledDate ? (
         <div className="flex h-screen w-full items-center justify-center">
           <div className="flex flex-col items-center justify-center w-[800px]">
             <div className="p-10 bg-[#0D90FF] text-white w-[500px] rounded-xl px-12 text-center font-bold text-lg">
