@@ -90,47 +90,57 @@ const Message: React.FC = () => {
   const [isListener, setIsListener] = useState<boolean | undefined>(false);
   const [currentNotif, setCurrentNotif] = useState<any | null>();
   const currentDate = new Date();
-  const scheduledDate = new Date(`${currentNotif?.schedule?.date}T${convertTo24Hour(currentNotif?.schedule?.time)}`);
-  
+  const scheduledDate = new Date(
+    `${currentNotif?.schedule?.date}T${convertTo24Hour(
+      currentNotif?.schedule?.time
+    )}`
+  );
+
   console.log("Current Date:", currentDate);
   console.log("Scheduled Date:", scheduledDate);
-  
 
   useEffect(() => {
     if (currentNotif?.schedule?.time) {
-      console.log('Time to convert:', currentNotif.schedule.time);
+      console.log("Time to convert:", currentNotif.schedule.time);
 
       const convertedTime = convertTo24Hour(currentNotif.schedule.time);
       if (convertedTime) {
-          const dateToCheck = new Date(`${currentNotif.schedule.date}T${convertedTime}`);
+        const dateToCheck = new Date(
+          `${currentNotif.schedule.date}T${convertedTime}`
+        );
 
-          if (!hasJoined && userAvailability && new Date() >= dateToCheck) {
-              socket.emit("join-room", session?.user.id);
-              setHasJoined(true);
-          }
+        if (!hasJoined && userAvailability && new Date() >= dateToCheck) {
+          socket.emit("join-room", session?.user.id);
+          setHasJoined(true);
+        }
       }
-  }
+    } else{
+      if(!hasJoined && userAvailability){
+        socket.emit("join-room", session?.user.id);
+        setHasJoined(true);
+      }
+    }
 
-  let recipientId: string | null = null;
-  if (chatData) {
+    let recipientId: string | null = null;
+    if (chatData) {
       chatData.forEach((chat: any) => {
-          let member = chat.members.find(
-              (member: any) => member.userId === session?.user.id && member.activation === true
-          );
-          console.log(member)
-          if (member) {
-              let recipient = chat.members.filter(
-                  (member: any) => member.userId !== session?.user.id
-              )[0];
-              if (recipient) {
-                  console.log(recipient)
-                  recipientId = recipient.userId;
-                  setRecipientId(recipientId);
-              }
+        let member = chat.members.find(
+          (member: any) =>
+            member.userId === session?.user.id && member.activation === true
+        );
+        console.log(member);
+        if (member) {
+          let recipient = chat.members.filter(
+            (member: any) => member.userId !== session?.user.id
+          )[0];
+          if (recipient) {
+            console.log(recipient);
+            recipientId = recipient.userId;
+            setRecipientId(recipientId);
           }
+        }
       });
-  }
-    
+    }
 
     let listenerCheck;
 
@@ -261,6 +271,7 @@ const Message: React.FC = () => {
   };
 
   const deactivateUser = async () => {
+    console.log(session?.user?.id)
     try {
       await axios.put("/api/getData/getAndUpdateChat", {
         userId: session?.user?.id,
@@ -314,22 +325,20 @@ const Message: React.FC = () => {
 
   function convertTo24Hour(timeStr: string | undefined): string {
     if (!timeStr) {
-        console.error("Invalid time string");
-        return "00:00";
+      console.error("Invalid time string");
+      return "00:00";
     }
 
     let [time, modifier] = timeStr.split(" ");
     let [hours, minutes] = time.split(":");
     if (hours === "12") {
-        hours = "00";
+      hours = "00";
     }
     if (modifier === "PM") {
-        hours = (parseInt(hours, 10) + 12).toString();
+      hours = (parseInt(hours, 10) + 12).toString();
     }
     return `${hours}:${minutes}`;
   }
-
-
 
   return (
     <>

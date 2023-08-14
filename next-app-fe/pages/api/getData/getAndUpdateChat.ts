@@ -25,7 +25,7 @@ export default async function handler(
       case "PUT":
         try {
           const chat = await Chat.findOneAndUpdate(
-            { "members.userId": req.body.userId },
+            { "members.userId": req.body.userId, "members.activation": true },
             { $set: { "members.$.activation": req.body.newActivation } },
             { new: true, runValidators: true }
           );
