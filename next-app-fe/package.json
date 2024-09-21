@@ -33,7 +33,7 @@
     "react-dom": "18.2.0",
     "react-slick": "^0.29.0",
     "slick-carousel": "^1.8.1",
-    "socket.io-client": "^4.7.1",
+    "socket.io-client": "^4.8.0",
     "swiper": "^9.3.2",
     "tailwind": "^4.0.0",
     "tailwind-scrollbar-hide": "^1.1.7",
