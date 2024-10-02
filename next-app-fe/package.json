@@ -13,7 +13,7 @@
     "@emotion/styled": "^11.11.0",
     "@mui/icons-material": "^5.11.16",
     "@types/mongoose": "^5.11.97",
-    "@types/node": "20.2.0",
+    "@types/node": "20.16.5",
     "@types/react": "18.2.6",
     "@types/react-dom": "18.2.4",
     "amqplib": "^0.10.3",
